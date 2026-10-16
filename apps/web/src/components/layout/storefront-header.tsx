@@ -219,7 +219,7 @@ export function StorefrontHeader() {
             <Link href="/catalog?category=electronics" className="hover:text-brand-primary transition-colors">
               Electronics
             </Link>
-            <Link href="/catalog?category=home-kitchen" className="hover:text-brand-primary transition-colors">
+            <Link href="/categories/home-kitchen" className="hover:text-brand-primary transition-colors">
               Home & Kitchen
             </Link>
             <Link href="/catalog?category=fashion" className="hover:text-brand-primary transition-colors">
