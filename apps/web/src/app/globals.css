@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-primary: #F97316;
+    --brand-hover: #EA580C;
+    --brand-bg: #F8FAFC;
+    --brand-surface: #FFFFFF;
+    --brand-text: #111827;
+    --brand-muted: #64748B;
+  }
+
+  body {
+    background-color: var(--brand-bg);
+    color: var(--brand-text);
+    font-family: var(--font-body), 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Custom scrollbars and transitions */
+html {
+  scroll-behavior: smooth;
+}

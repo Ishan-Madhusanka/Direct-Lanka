@@ -1,0 +1,20 @@
+{
+  "name": "lankadirect-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LankaDirect - Single-owner Sri Lankan e-commerce store monorepo",
+  "scripts": {
+    "dev": "pnpm --filter @lankadirect/web dev",
+    "build": "pnpm --filter @lankadirect/web build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r --parallel exec rimraf node_modules .next dist"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
