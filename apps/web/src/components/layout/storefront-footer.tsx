@@ -1,204 +1,308 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  ChevronDown,
+  Home,
+  Grid,
+  Sparkles,
+  ShoppingCart,
+  User,
+  ShieldCheck,
+} from 'lucide-react';
 import { Container } from '@/components/ui/container';
-import { Truck, ShieldCheck, Phone, Mail, MapPin } from 'lucide-react';
 
 export function StorefrontFooter() {
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+
+  const toggleAccordion = (section: string) => {
+    setOpenAccordion(openAccordion === section ? null : section);
+  };
+
   return (
-    <footer className="bg-brand-surface border-t border-brand-border mt-auto">
-      {/* Trust & Guarantee Section */}
-      <div className="border-b border-brand-subtle py-8 bg-brand-bg/50">
-        <Container>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-brand-primary shrink-0">
-                <Truck className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-heading font-semibold text-sm text-brand-text">
-                  Island-wide Delivery
-                </h4>
-                <p className="text-xs text-brand-muted mt-0.5">
-                  Fast courier dispatch to all 25 districts
-                </p>
-              </div>
-            </div>
+    <>
+      <footer className="bg-white border-t border-slate-200 mt-auto pb-16 sm:pb-0">
+        {/* Main Desktop Footer */}
+        <div className="py-12 lg:py-16">
+          <Container>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">
+              {/* Column 1: Brand Info & Direct Contacts */}
+              <div className="lg:col-span-2 space-y-4">
+                <Link href="/" className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-heading font-black text-lg shadow-xs">
+                    L
+                  </div>
+                  <span className="font-heading font-black text-xl text-slate-900 tracking-tight">
+                    Lanka<span className="text-brand-primary">Direct</span>
+                  </span>
+                </Link>
 
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-heading font-semibold text-sm text-brand-text">
-                  Cash on Delivery (COD)
-                </h4>
-                <p className="text-xs text-brand-muted mt-0.5">
-                  Pay cash at your doorstep safely
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm">
+                  LankaDirect is your trusted Sri Lankan online retail store delivering quality products directly to your doorstep via reliable courier partners across the island.
                 </p>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-                <Phone className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-heading font-semibold text-sm text-brand-text">
-                  Friendly Support
-                </h4>
-                <p className="text-xs text-brand-muted mt-0.5">
-                  Direct hotline support in Sinhala & English
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 shrink-0">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-heading font-semibold text-sm text-brand-text">
-                  Genuine Guarantee
-                </h4>
-                <p className="text-xs text-brand-muted mt-0.5">
-                  Original products with verified warranty
-                </p>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </div>
-
-      {/* Main Footer Links */}
-      <div className="py-12">
-        <Container>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-            {/* Brand column */}
-            <div className="lg:col-span-2">
-              <Link href="/" className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-heading font-bold text-lg">
-                  L
+                <div className="space-y-2 text-xs text-slate-600 pt-1">
+                  <div className="flex items-center gap-2.5">
+                    <Phone className="w-4 h-4 text-brand-primary shrink-0" />
+                    <span>+94 11 234 5678 (Hotline)</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <Mail className="w-4 h-4 text-brand-primary shrink-0" />
+                    <span>support@lankadirect.lk</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <MapPin className="w-4 h-4 text-brand-primary shrink-0" />
+                    <span>Colombo 03, Sri Lanka</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-brand-primary shrink-0" />
+                    <span>Mon - Sat 08:30 AM - 06:30 PM</span>
+                  </div>
                 </div>
-                <span className="font-heading font-bold text-xl text-brand-text">
-                  Lanka<span className="text-brand-primary">Direct</span>
+              </div>
+
+              {/* Column 2: Quick Links */}
+              <div className="hidden sm:block">
+                <h4 className="font-heading font-bold text-sm text-slate-900 mb-3.5 tracking-tight">
+                  Quick Links
+                </h4>
+                <ul className="space-y-2.5 text-xs text-slate-600">
+                  <li>
+                    <Link href="/about" className="hover:text-brand-primary transition-colors">
+                      About Us
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/contact" className="hover:text-brand-primary transition-colors">
+                      Contact Us
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/faq" className="hover:text-brand-primary transition-colors">
+                      FAQs & Store Policies
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/catalog" className="hover:text-brand-primary transition-colors">
+                      All Categories
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/track" className="hover:text-brand-primary transition-colors">
+                      Track Order via Courier
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 3: Customer Care & Delivery */}
+              <div className="hidden sm:block">
+                <h4 className="font-heading font-bold text-sm text-slate-900 mb-3.5 tracking-tight">
+                  Customer Care & Delivery
+                </h4>
+                <ul className="space-y-2.5 text-xs text-slate-600">
+                  <li>
+                    <Link href="/shipping" className="hover:text-brand-primary transition-colors">
+                      Shipping Information
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/delivery" className="hover:text-brand-primary transition-colors">
+                      Delivery through third-party courier services island-wide
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/returns" className="hover:text-brand-primary transition-colors">
+                      Return & Refund Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/terms" className="hover:text-brand-primary transition-colors">
+                      Terms & Conditions
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/privacy" className="hover:text-brand-primary transition-colors">
+                      Privacy Policy
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 4: Accepted Payment Methods */}
+              <div className="hidden sm:block">
+                <h4 className="font-heading font-bold text-sm text-slate-900 mb-3.5 tracking-tight">
+                  Accepted Payment Methods
+                </h4>
+                <p className="text-xs text-slate-500 mb-3">
+                  Safe & encrypted payments with regional gateways:
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {['Visa', 'MasterCard', 'Koko Pay', 'Mintpay', 'Bank Transfer'].map((m) => (
+                    <span
+                      key={m}
+                      className="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md"
+                    >
+                      {m}
+                    </span>
+                  ))}
+                </div>
+                <div className="p-2.5 rounded-lg bg-orange-50 border border-orange-200 text-brand-hover text-xs font-semibold text-center">
+                  Cash on Delivery (COD) Available
+                </div>
+              </div>
+
+              {/* Mobile Accordion Sections */}
+              <div className="sm:hidden col-span-1 divide-y divide-slate-200 border-y border-slate-200 -mx-4 px-4">
+                {[
+                  {
+                    id: 'about',
+                    title: 'About Us',
+                    links: [
+                      { label: 'Our Story', href: '/about' },
+                      { label: 'Careers', href: '/careers' },
+                      { label: 'Store Policies', href: '/faq' },
+                    ],
+                  },
+                  {
+                    id: 'shipping',
+                    title: 'Shipping & Courier Policy',
+                    links: [
+                      { label: 'Courier Partners in Sri Lanka', href: '/shipping' },
+                      { label: 'Colombo & Outstation Rates', href: '/delivery' },
+                      { label: 'Tracking Support', href: '/track' },
+                    ],
+                  },
+                  {
+                    id: 'returns',
+                    title: 'Returns & Exchanges',
+                    links: [
+                      { label: '7-Day Return Assistance', href: '/returns' },
+                      { label: 'Warranty Claims', href: '/warranty' },
+                      { label: 'Refund Guidelines', href: '/refunds' },
+                    ],
+                  },
+                  {
+                    id: 'contact',
+                    title: 'Contact Us',
+                    links: [
+                      { label: 'WhatsApp Helpline', href: '/contact' },
+                      { label: 'Customer Care Call Center', href: '/contact' },
+                      { label: 'Colombo Storefront Office', href: '/contact' },
+                    ],
+                  },
+                ].map((sec) => (
+                  <div key={sec.id} className="py-3">
+                    <button
+                      onClick={() => toggleAccordion(sec.id)}
+                      className="w-full flex items-center justify-between text-xs font-bold text-slate-900"
+                    >
+                      <span>{sec.title}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform ${
+                          openAccordion === sec.id ? 'rotate-180 text-brand-primary' : ''
+                        }`}
+                      />
+                    </button>
+                    {openAccordion === sec.id && (
+                      <div className="pt-2 pb-1 pl-1 space-y-2">
+                        {sec.links.map((link, idx) => (
+                          <Link
+                            key={idx}
+                            href={link.href}
+                            className="block text-xs text-slate-600 hover:text-brand-primary"
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile Payment Pill Strip */}
+              <div className="sm:hidden pt-4 text-center">
+                <div className="flex flex-wrap justify-center gap-1.5 mb-2">
+                  {['Visa', 'Mastercard', 'Koko', 'Mintpay'].map((p) => (
+                    <span
+                      key={p}
+                      className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-medium rounded border border-slate-200"
+                    >
+                      {p}
+                    </span>
+                  ))}
+                </div>
+                <span className="inline-block px-3 py-1 rounded bg-orange-50 border border-orange-200 text-brand-primary text-[11px] font-bold">
+                  Cash On Delivery
                 </span>
-              </Link>
-              <p className="text-sm text-brand-muted max-w-sm mb-4 leading-relaxed">
-                LankaDirect is a direct-to-customer online store delivering quality goods across Sri Lanka with transparent pricing in Sri Lankan Rupees (LKR) and reliable cash-on-delivery.
-              </p>
-              <div className="flex flex-col gap-2 text-xs text-brand-muted">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-brand-primary" />
-                  <span>Colombo, Western Province, Sri Lanka</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-brand-primary" />
-                  <span>contact@lankadirect.lk</span>
-                </div>
               </div>
             </div>
+          </Container>
+        </div>
 
-            {/* Quick Links */}
-            <div>
-              <h5 className="font-heading font-semibold text-sm text-brand-text mb-3">
-                Shopping
-              </h5>
-              <ul className="space-y-2 text-sm text-brand-muted">
-                <li>
-                  <Link href="/catalog" className="hover:text-brand-primary transition-colors">
-                    All Products
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/catalog?deals=true" className="hover:text-brand-primary transition-colors">
-                    Special Offers
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/cart" className="hover:text-brand-primary transition-colors">
-                    Shopping Cart
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/checkout" className="hover:text-brand-primary transition-colors">
-                    Checkout
-                  </Link>
-                </li>
-              </ul>
+        {/* Bottom Copyright Bar */}
+        <div className="border-t border-slate-200 py-4 bg-slate-50 text-[11px] text-slate-500">
+          <Container className="flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+            <p>© 2025 LankaDirect PVT LTD. All rights reserved. A Direct-Infra company.</p>
+            <div className="flex items-center gap-2 text-slate-700 font-medium">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Verified Direct Courier Delivery</span>
             </div>
+          </Container>
+        </div>
+      </footer>
 
-            {/* Customer Care */}
-            <div>
-              <h5 className="font-heading font-semibold text-sm text-brand-text mb-3">
-                Customer Care
-              </h5>
-              <ul className="space-y-2 text-sm text-brand-muted">
-                <li>
-                  <Link href="/orders/track" className="hover:text-brand-primary transition-colors">
-                    Track Your Order
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/shipping-policy" className="hover:text-brand-primary transition-colors">
-                    Delivery Rates & Times
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/returns-policy" className="hover:text-brand-primary transition-colors">
-                    Returns & Exchanges
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="hover:text-brand-primary transition-colors">
-                    Contact Us
-                  </Link>
-                </li>
-              </ul>
-            </div>
+      {/* Fixed Sticky Mobile Bottom Navigation Bar (Matching Mobile Artboard) */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 py-1.5 px-3 shadow-lg flex items-center justify-around">
+        <Link
+          href="/"
+          className="flex flex-col items-center gap-0.5 text-brand-primary font-semibold text-[10px]"
+        >
+          <Home className="w-5 h-5 text-brand-primary" />
+          <span>Home</span>
+        </Link>
 
-            {/* Legal & Policy */}
-            <div>
-              <h5 className="font-heading font-semibold text-sm text-brand-text mb-3">
-                Store Policies
-              </h5>
-              <ul className="space-y-2 text-sm text-brand-muted">
-                <li>
-                  <Link href="/terms" className="hover:text-brand-primary transition-colors">
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-brand-primary transition-colors">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/cod-policy" className="hover:text-brand-primary transition-colors">
-                    Cash On Delivery Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/admin" className="text-brand-primary font-medium hover:underline">
-                    Admin Portal
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </Container>
+        <Link
+          href="/catalog"
+          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px]"
+        >
+          <Grid className="w-5 h-5 text-slate-400" />
+          <span>Categories</span>
+        </Link>
+
+        <Link
+          href="/catalog?deals=true"
+          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px]"
+        >
+          <Sparkles className="w-5 h-5 text-slate-400" />
+          <span>Deals</span>
+        </Link>
+
+        <Link
+          href="/cart"
+          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px] relative"
+        >
+          <ShoppingCart className="w-5 h-5 text-slate-400" />
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+            3
+          </span>
+          <span>Cart</span>
+        </Link>
+
+        <Link
+          href="/account"
+          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px]"
+        >
+          <User className="w-5 h-5 text-slate-400" />
+          <span>Account</span>
+        </Link>
       </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-brand-border py-4 bg-brand-bg text-center text-xs text-brand-muted">
-        <Container className="flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>© {new Date().getFullYear()} LankaDirect (Pvt) Ltd. All rights reserved.</p>
-          <div className="flex items-center gap-3 text-xs">
-            <span>Prices in Sri Lankan Rupees (LKR)</span>
-            <span>•</span>
-            <span className="text-emerald-700 font-medium">Island-wide Courier Delivery</span>
-          </div>
-        </Container>
-      </div>
-    </footer>
+    </>
   );
 }

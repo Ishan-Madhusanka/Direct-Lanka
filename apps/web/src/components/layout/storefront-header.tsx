@@ -6,193 +6,82 @@ import {
   Search,
   ShoppingCart,
   User,
+  MapPin,
+  ChevronDown,
+  HelpCircle,
+  Truck,
+  CheckCircle2,
+  ShieldCheck,
   Menu,
   X,
-  ShieldCheck,
-  Truck,
-  LayoutDashboard,
+  Sparkles,
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 
 export function StorefrontHeader() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const categories = [
+    'All Categories',
+    'Electronics',
+    'Home & Kitchen',
+    'Fashion',
+    'Beauty & Personal Care',
+    'Grocery & Essentials',
+    'Living & Tools',
+  ];
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-brand-surface border-b border-brand-border">
-      {/* Top Banner */}
-      <div className="bg-brand-text text-white text-xs py-2 px-4">
-        <Container className="flex items-center justify-between text-xs sm:text-sm">
+    <header className="sticky top-0 z-50 w-full bg-white shadow-xs">
+      {/* 1. Top Notice Announcement Strip */}
+      <div className="bg-[#111827] text-slate-200 text-xs py-2 px-4 border-b border-gray-800">
+        <Container className="flex items-center justify-center text-center text-[11px] sm:text-xs font-normal tracking-wide">
           <div className="flex items-center gap-2">
-            <Truck className="w-3.5 h-3.5 text-brand-primary" />
-            <span>Island-wide Sri Lanka delivery • Cash on Delivery (COD) available</span>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-slate-300">
-            <div className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>100% Genuine Products</span>
-            </div>
-            <span>|</span>
-            <Link
-              href="/admin"
-              className="flex items-center gap-1 text-brand-primary hover:text-brand-hover font-medium transition-colors"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Store Owner Admin</span>
-            </Link>
+            <span className="hidden sm:inline">Island-wide doorstep courier delivery across Sri Lanka</span>
+            <span className="hidden sm:inline text-slate-500">•</span>
+            <span className="text-slate-300">Standard courier rates applied at checkout</span>
           </div>
         </Container>
       </div>
 
-      {/* Main Navigation Bar */}
-      <div className="py-3.5">
-        <Container className="flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 select-none group">
-            <div className="w-9 h-9 rounded-lg bg-brand-primary flex items-center justify-center text-white font-heading font-black text-xl shadow-sm group-hover:bg-brand-hover transition-colors">
-              L
-            </div>
-            <div className="flex flex-col">
-              <span className="font-heading font-bold text-xl leading-none text-brand-text tracking-tight">
-                Lanka<span className="text-brand-primary">Direct</span>
-              </span>
-              <span className="text-[10px] uppercase font-semibold tracking-wider text-brand-muted">
-                Online Store • Sri Lanka
-              </span>
-            </div>
-          </Link>
+      {/* 2. Mobile Fast Delivery Strip */}
+      <div className="sm:hidden bg-brand-primary text-white text-xs py-1.5 px-3 flex items-center justify-center gap-1.5 font-medium">
+        <Truck className="w-3.5 h-3.5" />
+        <span className="text-[11px]">Island-wide courier delivery • Fast & reliable</span>
+      </div>
 
-          {/* Search Bar (Desktop) */}
-          <div className="hidden lg:flex flex-1 max-w-xl mx-6">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (searchQuery.trim()) {
-                  window.location.href = `/catalog?search=${encodeURIComponent(
-                    searchQuery.trim()
-                  )}`;
-                }
-              }}
-              className="relative w-full"
-            >
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products, brands, categories..."
-                className="w-full h-10 pl-10 pr-24 rounded-full border border-brand-border bg-brand-bg text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary transition-all"
-              />
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
-              <Button
-                type="submit"
-                size="sm"
-                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full px-4 text-xs h-8"
-              >
-                Search
-              </Button>
-            </form>
-          </div>
-
-          {/* Action Links */}
-          <div className="flex items-center gap-3">
-            {/* Currency Pill */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-brand-bg border border-brand-border text-xs font-semibold text-brand-text">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>LKR (රු)</span>
-            </div>
-
-            {/* Account Link */}
-            <Link
-              href="/account"
-              className="flex items-center gap-1.5 p-2 rounded-lg text-brand-text hover:bg-brand-bg transition-colors"
-              title="My Account"
-            >
-              <User className="w-5 h-5 text-brand-muted" />
-              <span className="hidden md:inline text-sm font-medium">Account</span>
-            </Link>
-
-            {/* Cart Link */}
-            <Link
-              href="/cart"
-              className="relative flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-50 text-brand-primary hover:bg-orange-100 transition-colors font-medium text-sm"
-              title="Shopping Cart"
-            >
-              <ShoppingCart className="w-5 h-5 text-brand-primary" />
-              <span className="hidden sm:inline">Cart</span>
-              <span className="flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-brand-primary text-white text-[11px] font-bold">
-                0
-              </span>
-            </Link>
-
-            {/* Mobile menu button */}
+      {/* 3. Main Header Bar */}
+      <div className="py-3 sm:py-3.5 border-b border-slate-100 bg-white">
+        <Container className="flex items-center justify-between gap-3 sm:gap-6">
+          {/* Left: Mobile Menu Trigger + Brand Logo */}
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-brand-text hover:bg-brand-bg rounded-lg"
-              aria-label="Toggle menu"
+              className="lg:hidden p-1.5 text-slate-700 hover:text-brand-primary rounded-md"
+              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-          </div>
-        </Container>
-      </div>
 
-      {/* Sub-navigation Links (Desktop) */}
-      <div className="hidden lg:block border-t border-brand-subtle bg-brand-surface">
-        <Container className="flex items-center justify-between py-2.5 text-sm">
-          <nav className="flex items-center gap-6 font-medium text-brand-text">
-            <Link
-              href="/"
-              className="hover:text-brand-primary transition-colors text-brand-primary font-semibold"
-            >
-              Home
+            <Link href="/" className="flex items-center gap-2.5 select-none shrink-0 group">
+              <div className="w-9 h-9 rounded-lg bg-brand-primary flex items-center justify-center text-white font-heading font-black text-xl shadow-xs group-hover:bg-brand-hover transition-colors">
+                <span className="transform -rotate-6">L</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-heading font-black text-xl sm:text-2xl leading-none text-slate-900 tracking-tight">
+                  Lanka<span className="text-brand-primary">Direct</span>
+                </span>
+                <span className="text-[9px] uppercase font-semibold tracking-wider text-slate-400 mt-0.5">
+                  Direct Retail • Sri Lanka
+                </span>
+              </div>
             </Link>
-            <Link
-              href="/catalog"
-              className="hover:text-brand-primary transition-colors"
-            >
-              All Products
-            </Link>
-            <Link
-              href="/catalog?category=electronics"
-              className="hover:text-brand-primary transition-colors"
-            >
-              Electronics
-            </Link>
-            <Link
-              href="/catalog?category=fashion"
-              className="hover:text-brand-primary transition-colors"
-            >
-              Fashion & Lifestyle
-            </Link>
-            <Link
-              href="/catalog?category=home"
-              className="hover:text-brand-primary transition-colors"
-            >
-              Home & Kitchen
-            </Link>
-            <Link
-              href="/catalog?deals=true"
-              className="flex items-center gap-1.5 text-brand-primary hover:text-brand-hover transition-colors font-semibold"
-            >
-              <span>Hot Deals</span>
-              <Badge variant="brand" className="text-[10px] py-0 px-1.5">
-                Save
-              </Badge>
-            </Link>
-          </nav>
-          <div className="text-xs text-brand-muted">
-            Customer Support:{' '}
-            <span className="font-semibold text-brand-text">+94 11 234 5678</span>
           </div>
-        </Container>
-      </div>
 
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-brand-border bg-brand-surface p-4 shadow-lg">
-          <div className="mb-4">
+          {/* Center: Search Bar with Category Dropdown (Desktop) */}
+          <div className="hidden lg:flex flex-1 max-w-2xl mx-2">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -202,47 +91,215 @@ export function StorefrontHeader() {
                   )}`;
                 }
               }}
-              className="relative w-full"
+              className="flex w-full h-11 items-center rounded-lg border border-slate-300 bg-white focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 transition-all overflow-hidden"
             >
+              {/* Category Dropdown inside search */}
+              <div className="relative border-r border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors shrink-0">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="h-11 pl-3.5 pr-8 text-xs font-semibold text-slate-700 bg-transparent cursor-pointer appearance-none focus:outline-none"
+                >
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* Input */}
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="w-full h-10 pl-10 pr-4 rounded-lg border border-brand-border bg-brand-bg text-sm text-brand-text"
+                className="flex-1 h-full px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+
+              {/* Orange Search Submit Button */}
+              <button
+                type="submit"
+                aria-label="Submit search"
+                className="h-full px-5 bg-brand-primary hover:bg-brand-hover text-white transition-colors flex items-center justify-center shrink-0"
+              >
+                <Search className="w-4 h-4 stroke-[2.5]" />
+              </button>
             </form>
           </div>
-          <nav className="flex flex-col gap-3 font-medium text-brand-text">
+
+          {/* Right: Deliver To + Help + Account + Cart */}
+          <div className="flex items-center gap-3 sm:gap-5">
+            {/* Deliver to Pin (Desktop) */}
+            <div className="hidden xl:flex items-center gap-2 text-left cursor-pointer hover:opacity-80 transition-opacity">
+              <MapPin className="w-4 h-4 text-brand-primary shrink-0" />
+              <div className="text-xs leading-tight">
+                <span className="block text-[11px] text-slate-400 font-normal">Deliver to:</span>
+                <span className="block font-bold text-slate-900">Colombo, WP</span>
+              </div>
+            </div>
+
+            {/* Help & Support (Desktop) */}
             <Link
-              href="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-1.5 hover:text-brand-primary"
+              href="/contact"
+              className="hidden lg:flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-brand-primary transition-colors"
             >
-              Home
+              <HelpCircle className="w-4 h-4 text-slate-400" />
+              <span>Help & Support</span>
             </Link>
+
+            {/* Account Link */}
+            <Link
+              href="/account"
+              className="flex items-center gap-2 text-left group cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-orange-50 text-slate-700 group-hover:text-brand-primary border border-slate-200 flex items-center justify-center transition-colors">
+                <User className="w-4 h-4" />
+              </div>
+              <div className="hidden md:block text-xs leading-tight">
+                <span className="block text-[10px] text-slate-400 font-normal">Welcome,</span>
+                <span className="block font-bold text-slate-900 group-hover:text-brand-primary transition-colors">
+                  My Account
+                </span>
+              </div>
+            </Link>
+
+            {/* Cart Pill (Orange Button from Artboard: "3 Items / Rs. 11,850") */}
+            <Link
+              href="/cart"
+              className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-brand-primary hover:bg-brand-hover text-white transition-all shadow-xs active:scale-[0.98]"
+            >
+              <ShoppingCart className="w-4 h-4 text-white stroke-[2.5]" />
+              <div className="flex items-center gap-1.5 text-xs font-bold leading-none">
+                <span>3 Items</span>
+                <span className="opacity-70 font-normal">|</span>
+                <span>Rs. 11,850</span>
+              </div>
+            </Link>
+          </div>
+        </Container>
+      </div>
+
+      {/* 4. Mobile Search Bar (Visible only on mobile/tablet) */}
+      <div className="lg:hidden p-3 bg-white border-b border-slate-100">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (searchQuery.trim()) {
+              window.location.href = `/catalog?search=${encodeURIComponent(
+                searchQuery.trim()
+              )}`;
+            }
+          }}
+          className="relative w-full"
+        >
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products..."
+            className="w-full h-10 pl-10 pr-4 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-primary"
+          />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        </form>
+      </div>
+
+      {/* 5. Category Navigation Bar (Desktop) */}
+      <div className="hidden lg:block border-b border-slate-200 bg-white">
+        <Container className="flex items-center justify-between text-xs font-semibold text-slate-700 py-2.5">
+          <nav className="flex items-center gap-6 xl:gap-8">
             <Link
               href="/catalog"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-1.5 hover:text-brand-primary"
+              className="flex items-center gap-1.5 text-slate-900 hover:text-brand-primary transition-colors"
             >
-              All Products
+              <Menu className="w-3.5 h-3.5 text-slate-500" />
+              <span>All Categories</span>
+            </Link>
+            <Link href="/catalog?category=electronics" className="hover:text-brand-primary transition-colors">
+              Electronics
+            </Link>
+            <Link href="/catalog?category=home-kitchen" className="hover:text-brand-primary transition-colors">
+              Home & Kitchen
+            </Link>
+            <Link href="/catalog?category=fashion" className="hover:text-brand-primary transition-colors">
+              Fashion
+            </Link>
+            <Link href="/catalog?category=beauty-care" className="hover:text-brand-primary transition-colors">
+              Beauty & Personal Care
+            </Link>
+            <Link href="/catalog?category=grocery-essentials" className="hover:text-brand-primary transition-colors">
+              Grocery & Essentials
             </Link>
             <Link
               href="/catalog?deals=true"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-1.5 text-brand-primary font-semibold"
+              className="text-brand-primary hover:text-brand-hover font-bold transition-colors flex items-center gap-1"
             >
-              Hot Deals & Promotions
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Deals of the Week</span>
             </Link>
+          </nav>
+        </Container>
+      </div>
+
+      {/* 6. Courier & Trust Micro-strip (Desktop) */}
+      <div className="hidden sm:block bg-slate-50 border-b border-slate-200/80 text-[11px] text-slate-600 py-1.5">
+        <Container className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-brand-primary animate-pulse"></span>
+            <span>
+              <strong className="text-slate-800">Courier Shipping:</strong> Delivery through third-party courier services across Sri Lanka
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 text-slate-500 font-medium">
+            <div className="flex items-center gap-1 text-emerald-700">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>100% Genuine Retail Stock</span>
+            </div>
+            <span>•</span>
+            <div className="flex items-center gap-1 text-slate-700">
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-primary" />
+              <span>Sri Lanka Wide Fulfillment</span>
+            </div>
+          </div>
+        </Container>
+      </div>
+
+      {/* 7. Mobile Drawer Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-b border-slate-200 bg-white p-4 shadow-lg animate-in slide-in-from-top-2">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+              <MapPin className="w-3.5 h-3.5 text-brand-primary" />
+              <span>Deliver to: Colombo, WP</span>
+            </div>
             <Link
               href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-1.5 text-brand-primary font-medium flex items-center gap-2 border-t border-brand-subtle pt-3"
+              className="text-xs font-semibold text-brand-primary hover:underline"
             >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Store Owner Admin Panel</span>
+              Admin Portal
+            </Link>
+          </div>
+          <nav className="flex flex-col gap-2.5 text-sm font-medium text-slate-800">
+            {categories.map((c) => (
+              <Link
+                key={c}
+                href={`/catalog?category=${encodeURIComponent(c.toLowerCase())}`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1.5 hover:text-brand-primary transition-colors flex items-center justify-between"
+              >
+                <span>{c}</span>
+                <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-slate-400" />
+              </Link>
+            ))}
+            <Link
+              href="/catalog?deals=true"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2 text-brand-primary font-bold border-t border-slate-100 flex items-center gap-1.5"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Deals of the Week</span>
             </Link>
           </nav>
         </div>
