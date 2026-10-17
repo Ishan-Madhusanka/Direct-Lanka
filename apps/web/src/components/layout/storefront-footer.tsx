@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Phone,
   Mail,
@@ -9,16 +10,26 @@ import {
   Clock,
   ChevronDown,
   Home,
-  Grid,
-  Sparkles,
-  ShoppingCart,
+  Store,
+  LayoutGrid,
+  Tag,
   User,
   ShieldCheck,
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 
 export function StorefrontFooter() {
+  const pathname = usePathname();
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+
+  const isHome = pathname === '/';
+  const isShop = pathname.startsWith('/catalog') && !pathname.includes('deals');
+  const isCategories = pathname.startsWith('/categories');
+  const isDeals = pathname.includes('deals');
+  const isAccount =
+    pathname.startsWith('/account') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register');
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
@@ -258,48 +269,55 @@ export function StorefrontFooter() {
         </div>
       </footer>
 
-      {/* Fixed Sticky Mobile Bottom Navigation Bar (Matching Mobile Artboard) */}
+      {/* Fixed Sticky Mobile Bottom Navigation Bar (Matching Stitch Mobile Artboard) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 py-1.5 px-3 shadow-lg flex items-center justify-around">
         <Link
           href="/"
-          className="flex flex-col items-center gap-0.5 text-brand-primary font-semibold text-[10px]"
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
+            isHome ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+          }`}
         >
-          <Home className="w-5 h-5 text-brand-primary" />
+          <Home className={`w-5 h-5 ${isHome ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Home</span>
         </Link>
 
         <Link
           href="/catalog"
-          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px]"
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
+            isShop ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+          }`}
         >
-          <Grid className="w-5 h-5 text-slate-400" />
+          <Store className={`w-5 h-5 ${isShop ? 'text-brand-primary' : 'text-slate-400'}`} />
+          <span>Shop</span>
+        </Link>
+
+        <Link
+          href="/categories/home-kitchen"
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
+            isCategories ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+          }`}
+        >
+          <LayoutGrid className={`w-5 h-5 ${isCategories ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Categories</span>
         </Link>
 
         <Link
           href="/catalog?deals=true"
-          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px]"
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
+            isDeals ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+          }`}
         >
-          <Sparkles className="w-5 h-5 text-slate-400" />
+          <Tag className={`w-5 h-5 ${isDeals ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Deals</span>
         </Link>
 
         <Link
-          href="/cart"
-          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px] relative"
-        >
-          <ShoppingCart className="w-5 h-5 text-slate-400" />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-            3
-          </span>
-          <span>Cart</span>
-        </Link>
-
-        <Link
           href="/account"
-          className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900 text-[10px]"
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
+            isAccount ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+          }`}
         >
-          <User className="w-5 h-5 text-slate-400" />
+          <User className={`w-5 h-5 ${isAccount ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Account</span>
         </Link>
       </div>
