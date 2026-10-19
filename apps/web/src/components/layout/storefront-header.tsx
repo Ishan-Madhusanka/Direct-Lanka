@@ -160,16 +160,44 @@ export function StorefrontHeader() {
               Account
             </Link>
 
-            {/* My Orders Button (Stitch Artboard) */}
+            {/* My Orders Link */}
             <Link
               href="/orders"
-              className={`hidden sm:inline-flex items-center px-4 py-2 rounded-full text-xs font-bold transition-all shadow-xs ${
+              className={`hidden sm:inline-flex items-center text-xs font-semibold transition-colors ${
                 pathname.startsWith('/orders') || pathname === '/account/orders'
-                  ? 'bg-brand-primary text-white hover:bg-brand-hover'
-                  : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
+                  ? 'text-brand-primary font-bold'
+                  : 'text-slate-700 hover:text-brand-primary'
               }`}
             >
               My Orders
+            </Link>
+
+            {/* About Us Link (Active on /about) */}
+            <Link
+              href="/about"
+              className={`hidden md:inline-flex items-center text-xs font-semibold transition-colors ${
+                pathname === '/about'
+                  ? 'text-brand-primary font-bold'
+                  : 'text-slate-700 hover:text-brand-primary'
+              }`}
+            >
+              About Us
+            </Link>
+
+            {/* Contact Us Link */}
+            <Link
+              href="/contact"
+              className="hidden lg:inline-flex items-center text-xs font-semibold text-slate-700 hover:text-brand-primary transition-colors"
+            >
+              Contact Us
+            </Link>
+
+            {/* Help & Support Link */}
+            <Link
+              href="/faq"
+              className="hidden xl:inline-flex items-center text-xs font-semibold text-slate-700 hover:text-brand-primary transition-colors"
+            >
+              Help &amp; Support
             </Link>
 
             {/* Cart Icon / Pill */}
