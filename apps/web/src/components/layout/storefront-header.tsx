@@ -187,7 +187,11 @@ export function StorefrontHeader() {
             {/* Contact Us Link */}
             <Link
               href="/contact"
-              className="hidden lg:inline-flex items-center text-xs font-semibold text-slate-700 hover:text-brand-primary transition-colors"
+              className={`hidden lg:inline-flex items-center text-xs font-semibold transition-colors ${
+                pathname === '/contact'
+                  ? 'text-brand-primary font-bold'
+                  : 'text-slate-700 hover:text-brand-primary'
+              }`}
             >
               Contact Us
             </Link>
@@ -195,7 +199,15 @@ export function StorefrontHeader() {
             {/* Help & Support Link */}
             <Link
               href="/faq"
-              className="hidden xl:inline-flex items-center text-xs font-semibold text-slate-700 hover:text-brand-primary transition-colors"
+              className={`hidden xl:inline-flex items-center text-xs font-semibold transition-colors ${
+                pathname === '/faq' ||
+                pathname === '/terms' ||
+                pathname === '/privacy' ||
+                pathname === '/shipping' ||
+                pathname === '/returns'
+                  ? 'text-brand-primary font-bold'
+                  : 'text-slate-700 hover:text-brand-primary'
+              }`}
             >
               Help &amp; Support
             </Link>
