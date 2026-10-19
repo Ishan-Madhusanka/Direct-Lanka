@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import {
   Search,
   ShoppingCart,
@@ -15,10 +17,12 @@ import {
   Menu,
   X,
   Sparkles,
+  Package,
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 
 export function StorefrontHeader() {
+  const pathname = usePathname();
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -140,42 +144,57 @@ export function StorefrontHeader() {
               </div>
             </div>
 
-            {/* Help & Support (Desktop) */}
+            {/* Categories Link (Desktop) */}
             <Link
-              href="/contact"
-              className="hidden lg:flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-brand-primary transition-colors"
+              href="/catalog"
+              className="hidden xl:inline-block text-xs font-semibold text-slate-700 hover:text-brand-primary transition-colors"
             >
-              <HelpCircle className="w-4 h-4 text-slate-400" />
-              <span>Help & Support</span>
+              Categories
             </Link>
 
-            {/* Account Link */}
+            {/* Account Link (Desktop) */}
             <Link
               href="/account"
-              className="flex items-center gap-2 text-left group cursor-pointer"
+              className="hidden lg:inline-block text-xs font-semibold text-slate-700 hover:text-brand-primary transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-orange-50 text-slate-700 group-hover:text-brand-primary border border-slate-200 flex items-center justify-center transition-colors">
-                <User className="w-4 h-4" />
-              </div>
-              <div className="hidden md:block text-xs leading-tight">
-                <span className="block text-[10px] text-slate-400 font-normal">Welcome,</span>
-                <span className="block font-bold text-slate-900 group-hover:text-brand-primary transition-colors">
-                  My Account
-                </span>
-              </div>
+              Account
             </Link>
 
-            {/* Cart Pill (Orange Button from Artboard: "3 Items / Rs. 11,850") */}
+            {/* My Orders Button (Stitch Artboard) */}
+            <Link
+              href="/orders"
+              className={`hidden sm:inline-flex items-center px-4 py-2 rounded-full text-xs font-bold transition-all shadow-xs ${
+                pathname.startsWith('/orders') || pathname === '/account/orders'
+                  ? 'bg-brand-primary text-white hover:bg-brand-hover'
+                  : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
+              }`}
+            >
+              My Orders
+            </Link>
+
+            {/* Cart Icon / Pill */}
             <Link
               href="/cart"
-              className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-brand-primary hover:bg-brand-hover text-white transition-all shadow-xs active:scale-[0.98]"
+              className="relative p-2 text-slate-700 hover:text-brand-primary transition-colors"
+              aria-label="View Shopping Cart"
             >
-              <ShoppingCart className="w-4 h-4 text-white stroke-[2.5]" />
-              <div className="flex items-center gap-1.5 text-xs font-bold leading-none">
-                <span>3 Items</span>
-                <span className="opacity-70 font-normal">|</span>
-                <span>Rs. 11,850</span>
-              </div>
+              <ShoppingCart className="w-5 h-5" />
+              <span className="absolute 0 top-0.5 right-0.5 w-4 h-4 rounded-full bg-brand-primary text-white text-[9px] font-bold flex items-center justify-center">
+                3
+              </span>
+            </Link>
+
+            {/* Profile Avatar (Stitch Artboard) */}
+            <Link
+              href="/account"
+              className="relative w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0 shadow-2xs"
+            >
+              <Image
+                src="/images/dinuka-avatar.jpg"
+                alt="Dinuka Fernando"
+                fill
+                className="object-cover"
+              />
             </Link>
           </div>
         </Container>
