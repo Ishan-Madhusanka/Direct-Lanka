@@ -626,9 +626,12 @@ export default function AdminOrdersPage() {
                     {/* Order Reference */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-heading font-black text-xs text-brand-primary">
+                        <Link
+                          href={`/admin/orders/${ord.orderNumber.replace('#', '')}`}
+                          className="font-heading font-black text-xs text-brand-primary hover:underline"
+                        >
                           {ord.orderNumber}
-                        </span>
+                        </Link>
                         {ord.isNew && (
                           <span className="px-1.5 py-0.2 rounded bg-brand-primary text-white text-[9px] font-black uppercase">
                             NEW
@@ -883,22 +886,21 @@ export default function AdminOrdersPage() {
 
               {/* Action Button */}
               {isPending ? (
-                <Button
-                  onClick={() => handleConfirmOrder(ord.id)}
-                  className="w-full h-10 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5"
+                <Link
+                  href={`/admin/orders/${ord.orderNumber.replace('#', '')}`}
+                  className="w-full h-10 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 bg-brand-primary text-white hover:bg-brand-hover transition-colors"
                 >
                   <Check className="w-4 h-4" />
                   <span>View Order &amp; Confirm</span>
-                </Button>
+                </Link>
               ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedOrderDetails(ord)}
-                  className="w-full h-9 rounded-xl border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1"
+                <Link
+                  href={`/admin/orders/${ord.orderNumber.replace('#', '')}`}
+                  className="w-full h-9 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1 transition-colors"
                 >
                   <span>Details</span>
                   <span>&gt;</span>
-                </Button>
+                </Link>
               )}
             </div>
           );
