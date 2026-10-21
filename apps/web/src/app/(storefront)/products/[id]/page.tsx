@@ -223,11 +223,10 @@ export default function ProductDetailPage() {
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      selectedImage === idx
+                    className={`h-1.5 rounded-full transition-all ${selectedImage === idx
                         ? 'w-6 bg-brand-primary'
                         : 'w-1.5 bg-slate-300'
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
@@ -239,11 +238,10 @@ export default function ProductDetailPage() {
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative aspect-square rounded-xl overflow-hidden bg-slate-100 border-2 transition-all cursor-pointer ${
-                    selectedImage === idx
+                  className={`relative aspect-square rounded-xl overflow-hidden bg-slate-100 border-2 transition-all cursor-pointer ${selectedImage === idx
                       ? 'border-brand-primary shadow-xs ring-2 ring-brand-primary/20 scale-[1.02]'
                       : 'border-slate-200 hover:border-slate-300 opacity-80 hover:opacity-100'
-                  }`}
+                    }`}
                 >
                   <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
                 </button>
@@ -263,9 +261,8 @@ export default function ProductDetailPage() {
                 {technicalSpecs.map((spec, idx) => (
                   <div
                     key={idx}
-                    className={`p-3 rounded-xl bg-slate-50 border border-slate-100 ${
-                      spec.fullWidth ? 'col-span-2' : ''
-                    }`}
+                    className={`p-3 rounded-xl bg-slate-50 border border-slate-100 ${spec.fullWidth ? 'col-span-2' : ''
+                      }`}
                   >
                     <span className="block text-[11px] text-slate-400 font-medium">
                       {spec.label}
@@ -501,9 +498,8 @@ export default function ProductDetailPage() {
                   >
                     <span>{acc.title}</span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform ${
-                        openAccordion === acc.id ? 'rotate-180 text-brand-primary' : ''
-                      }`}
+                      className={`w-4 h-4 text-slate-400 transition-transform ${openAccordion === acc.id ? 'rotate-180 text-brand-primary' : ''
+                        }`}
                     />
                   </button>
                   {openAccordion === acc.id && (
@@ -553,11 +549,10 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={() => setPairsWellAdded(!pairsWellAdded)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-                    pairsWellAdded
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${pairsWellAdded
                       ? 'bg-emerald-600 text-white'
                       : 'bg-orange-100 text-brand-primary hover:bg-brand-primary hover:text-white'
-                  }`}
+                    }`}
                 >
                   {pairsWellAdded ? <Check className="w-4 h-4 stroke-[3]" /> : <Plus className="w-4 h-4" />}
                 </button>

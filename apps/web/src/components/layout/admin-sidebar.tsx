@@ -14,6 +14,7 @@ import {
   BarChart3,
   Settings,
   ArrowLeft,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -74,14 +75,21 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* Footer exit link */}
-      <div className="p-4 border-t border-brand-subtle">
+      {/* Footer exit link & Sign Out */}
+      <div className="p-4 border-t border-brand-subtle space-y-1">
         <Link
           href="/"
           className="flex items-center gap-2 text-xs font-semibold text-brand-muted hover:text-brand-text transition-colors p-2 rounded-lg hover:bg-brand-bg"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Exit to Customer Storefront</span>
+        </Link>
+        <Link
+          href="/admin/login"
+          className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:text-red-700 transition-colors p-2 rounded-lg hover:bg-red-50"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out</span>
         </Link>
       </div>
     </aside>
