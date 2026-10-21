@@ -647,9 +647,12 @@ export default function AdminProductsPage() {
                           />
                         </div>
                         <div>
-                          <p className="font-heading font-black text-xs text-slate-900 leading-tight">
+                          <Link
+                            href={`/admin/products/${p.sku}`}
+                            className="font-heading font-black text-xs text-slate-900 leading-tight hover:text-brand-primary transition-colors"
+                          >
                             {p.name}
-                          </p>
+                          </Link>
                           <p className="text-[11px] text-slate-400 font-medium mt-0.5">
                             Brand: {p.brand} {p.details ? `• ${p.details}` : ''}
                           </p>
@@ -716,13 +719,13 @@ export default function AdminProductsPage() {
                         </button>
 
                         {/* Edit Button */}
-                        <button
-                          onClick={() => handleOpenEdit(p)}
+                        <Link
+                          href={`/admin/products/${p.sku}`}
                           className="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-brand-primary flex items-center justify-center transition-colors"
                           title="Edit Product"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
-                        </button>
+                        </Link>
 
                         {/* Delete Button */}
                         <button
@@ -900,13 +903,13 @@ export default function AdminProductsPage() {
 
                 {/* Edit & Delete buttons */}
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleOpenEdit(p)}
+                  <Link
+                    href={`/admin/products/${p.sku}`}
                     className="h-8 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1"
                   >
                     <Edit2 className="w-3 h-3" />
                     <span>Edit</span>
-                  </button>
+                  </Link>
 
                   <button
                     onClick={() => setDeleteProductTarget(p)}
