@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Mail,
   Lock,
@@ -30,8 +30,10 @@ import {
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
 
   // Form states
   const [email, setEmail] = useState('kasun.perera@gmail.lk');
@@ -55,8 +57,12 @@ export default function LoginPage() {
       setIsLoading(false);
       if (email.includes('error') || password === 'wrong') {
         setShowErrorAlert(true);
+      } else if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('owner')) {
+        router.push('/admin');
+      } else if (redirectParam) {
+        router.push(redirectParam);
       } else {
-        router.push('/');
+        router.push('/account');
       }
     }, 600);
   };
@@ -240,6 +246,65 @@ export default function LoginPage() {
               <p className="text-xs text-slate-500">
                 Log in to your LankaDirect account to view past orders and track doorstep deliveries across Sri Lanka.
               </p>
+            </div>
+
+            {/* Login / Register Segmented Tabs */}
+            <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-slate-100 text-xs font-bold">
+              <button
+                type="button"
+                className="py-2 rounded-xl bg-white text-slate-900 shadow-2xs text-center"
+              >
+                Log In
+              </button>
+              <Link
+                href="/register"
+                className="py-2 rounded-xl text-slate-500 hover:text-slate-900 text-center transition-colors"
+              >
+                Create Account
+              </Link>
+            </div>
+
+            {/* Quick Demo Access Bar */}
+            <div className="p-3 rounded-2xl bg-orange-50/60 border border-orange-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-brand-hover block">
+                  Quick Demo Access (1-Click Fill &amp; Login)
+                </span>
+                <span className="text-[10px] font-bold text-slate-400">Direct Route</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('dinuka.f@gmail.com');
+                    setPassword('password123');
+                    setIsLoading(true);
+                    setTimeout(() => router.push(redirectParam || '/account'), 500);
+                  }}
+                  className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-primary text-left transition-all hover:shadow-xs cursor-pointer group"
+                >
+                  <span className="font-heading font-black text-xs text-slate-900 group-hover:text-brand-primary block leading-tight">
+                    Customer Portal →
+                  </span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">Dinuka Fernando</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('admin@lankadirect.lk');
+                    setPassword('Admin@Lanka2025!');
+                    setIsLoading(true);
+                    setTimeout(() => router.push('/admin'), 500);
+                  }}
+                  className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-primary text-left transition-all hover:shadow-xs cursor-pointer group"
+                >
+                  <span className="font-heading font-black text-xs text-slate-900 group-hover:text-brand-primary block leading-tight">
+                    Admin Portal →
+                  </span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">Store Owner</span>
+                </button>
+              </div>
             </div>
 
             {/* Login Form */}
@@ -608,3 +673,18 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#FAFBFD] flex items-center justify-center text-slate-400 text-xs">
+          Loading login portal...
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
+  );
+}
+

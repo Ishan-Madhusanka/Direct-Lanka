@@ -360,6 +360,31 @@ export function StorefrontHeader() {
               <Sparkles className="w-4 h-4" />
               <span>Deals of the Week</span>
             </Link>
+            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+              <Link
+                href="/orders"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 text-slate-700 hover:text-brand-primary font-semibold flex items-center gap-2"
+              >
+                <Truck className="w-4 h-4 text-brand-primary" />
+                <span>Track My Orders</span>
+              </Link>
+              <Link
+                href="/account"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 text-slate-700 hover:text-brand-primary font-semibold flex items-center gap-2"
+              >
+                <User className="w-4 h-4 text-brand-primary" />
+                <span>My Account</span>
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 text-brand-primary hover:underline font-bold flex items-center gap-2"
+              >
+                <span>Sign In / Register →</span>
+              </Link>
+            </div>
           </nav>
         </div>
       )}

@@ -104,7 +104,7 @@ export function StorefrontFooter() {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/track" className="hover:text-brand-primary transition-colors">
+                    <Link href="/orders" className="hover:text-brand-primary transition-colors">
                       Track Order via Courier
                     </Link>
                   </li>
@@ -123,7 +123,7 @@ export function StorefrontFooter() {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/delivery" className="hover:text-brand-primary transition-colors">
+                    <Link href="/shipping" className="hover:text-brand-primary transition-colors">
                       Delivery through third-party courier services island-wide
                     </Link>
                   </li>
@@ -176,7 +176,7 @@ export function StorefrontFooter() {
                     title: 'About Us',
                     links: [
                       { label: 'Our Story', href: '/about' },
-                      { label: 'Careers', href: '/careers' },
+                      { label: 'Contact Us', href: '/contact' },
                       { label: 'Store Policies', href: '/faq' },
                     ],
                   },
@@ -185,8 +185,8 @@ export function StorefrontFooter() {
                     title: 'Shipping & Courier Policy',
                     links: [
                       { label: 'Courier Partners in Sri Lanka', href: '/shipping' },
-                      { label: 'Colombo & Outstation Rates', href: '/delivery' },
-                      { label: 'Tracking Support', href: '/track' },
+                      { label: 'Colombo & Outstation Rates', href: '/shipping' },
+                      { label: 'Tracking Support', href: '/orders' },
                     ],
                   },
                   {
@@ -194,8 +194,8 @@ export function StorefrontFooter() {
                     title: 'Returns & Exchanges',
                     links: [
                       { label: '7-Day Return Assistance', href: '/returns' },
-                      { label: 'Warranty Claims', href: '/warranty' },
-                      { label: 'Refund Guidelines', href: '/refunds' },
+                      { label: 'Terms & Conditions', href: '/terms' },
+                      { label: 'Privacy Policy', href: '/privacy' },
                     ],
                   },
                   {

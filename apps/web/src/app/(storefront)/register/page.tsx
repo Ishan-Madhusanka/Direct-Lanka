@@ -81,9 +81,9 @@ export default function RegisterPage() {
     setTimeout(() => {
       setIsSubmitting(false);
       setShowSuccessPreview(true);
-      // Route after short preview
+      // Route to account dashboard after registration
       setTimeout(() => {
-        router.push('/');
+        router.push('/account');
       }, 1200);
     }, 600);
   };
@@ -213,6 +213,22 @@ export default function RegisterPage() {
                   You do not need an account to place an order. Continue as a guest at cart anytime with pure Cash on Delivery or Card payment.
                 </p>
               </div>
+            </div>
+
+            {/* Login / Register Segmented Tabs */}
+            <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-slate-100 text-xs font-bold">
+              <Link
+                href="/login"
+                className="py-2 rounded-xl text-slate-500 hover:text-slate-900 text-center transition-colors"
+              >
+                Log In
+              </Link>
+              <button
+                type="button"
+                className="py-2 rounded-xl bg-white text-slate-900 shadow-2xs text-center"
+              >
+                Create Account
+              </button>
             </div>
 
             {/* Registration Form */}

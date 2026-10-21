@@ -536,18 +536,26 @@ function OrderConfirmationContent() {
 
               {/* Action Buttons (Desktop & Mobile) */}
               <div className="space-y-3 pt-2">
-                <Link href="/" className="block">
-                  <Button className="w-full h-12 text-sm font-bold rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Continue Shopping</span>
-                  </Button>
-                </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Link href="/orders" className="block">
+                    <Button className="w-full h-12 text-sm font-bold rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform bg-brand-primary hover:bg-brand-hover text-white cursor-pointer">
+                      <Truck className="w-4 h-4" />
+                      <span>Track Order Status</span>
+                    </Button>
+                  </Link>
+                  <Link href="/" className="block">
+                    <Button variant="outline" className="w-full h-12 text-sm font-bold rounded-xl border-slate-300 hover:bg-slate-50 text-slate-800 flex items-center justify-center gap-2 active:scale-95 transition-transform cursor-pointer">
+                      <ShoppingBag className="w-4 h-4" />
+                      <span>Continue Shopping</span>
+                    </Button>
+                  </Link>
+                </div>
 
                 <div className="hidden sm:grid grid-cols-2 gap-2.5">
                   <Button
                     variant="outline"
                     onClick={handlePrint}
-                    className="h-10 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs flex items-center justify-center gap-1.5"
+                    className="h-10 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Printer className="w-3.5 h-3.5 text-slate-500" />
                     <span>Print Receipt</span>
@@ -556,27 +564,29 @@ function OrderConfirmationContent() {
                   <Button
                     variant="outline"
                     onClick={handlePrint}
-                    className="h-10 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs flex items-center justify-center gap-1.5"
+                    className="h-10 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5 text-slate-500" />
                     <span>Download Invoice</span>
                   </Button>
                 </div>
 
-                <Link
-                  href="/account"
-                  className="sm:hidden block w-full py-2.5 text-center text-xs font-bold text-slate-700 border border-slate-200 rounded-xl bg-white shadow-xs"
-                >
-                  📄 View Order Details
-                </Link>
-
-                <div className="hidden sm:block text-center pt-1">
+                <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-600 pt-1">
+                  <Link
+                    href="/orders"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-brand-primary transition-colors"
+                  >
+                    <Truck className="w-3.5 h-3.5 text-brand-primary" />
+                    <span>Live Tracking</span>
+                  </Link>
+                  <span className="text-slate-300">•</span>
                   <Link
                     href="/account"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-brand-primary transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-brand-primary transition-colors"
                   >
-                    <span>View Order Details in My Account</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <FileText className="w-3.5 h-3.5 text-brand-primary" />
+                    <span>View in My Account</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
                   </Link>
                 </div>
               </div>

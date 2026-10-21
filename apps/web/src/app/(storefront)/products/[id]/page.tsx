@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   Home,
   ChevronRight,
@@ -34,6 +35,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatLKR } from '@/lib/utils';
 
 export default function ProductDetailPage() {
+  const router = useRouter();
   const [selectedImage, setSelectedImage] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
@@ -389,16 +391,17 @@ export default function ProductDetailPage() {
               <Button
                 onClick={handleAddToCart}
                 size="lg"
-                className="h-12 font-bold shadow-md"
+                className="h-12 font-bold shadow-md cursor-pointer"
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 <span>Add to Cart</span>
               </Button>
 
               <Button
+                onClick={() => router.push('/checkout')}
                 variant="outline"
                 size="lg"
-                className="h-12 font-bold border-slate-300 text-slate-900 hover:border-brand-primary"
+                className="h-12 font-bold border-slate-300 text-slate-900 hover:border-brand-primary cursor-pointer hover:bg-orange-50/50"
               >
                 <Zap className="w-4 h-4 mr-2 text-brand-primary fill-brand-primary" />
                 <span>Buy Now</span>
@@ -407,9 +410,25 @@ export default function ProductDetailPage() {
 
             {/* Added to Cart Feedback Toast */}
             {addedToCart && (
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Added {quantity} unit(s) of Singer Kettle to your shopping cart!</span>
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-between gap-2 animate-in fade-in shadow-xs">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Added {quantity} unit(s) of Singer Kettle to your shopping cart!</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Link
+                    href="/cart"
+                    className="px-2.5 py-1 rounded-lg bg-white border border-emerald-300 text-emerald-800 text-[11px] font-bold hover:bg-emerald-100 transition-colors"
+                  >
+                    View Cart
+                  </Link>
+                  <Link
+                    href="/checkout"
+                    className="px-2.5 py-1 rounded-lg bg-brand-primary text-white text-[11px] font-bold hover:bg-brand-hover shadow-2xs transition-colors"
+                  >
+                    Checkout →
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -658,8 +677,8 @@ export default function ProductDetailPage() {
           </Button>
 
           <Button
-            onClick={handleAddToCart}
-            className="flex-1 h-11 text-xs font-bold shadow-md"
+            onClick={() => router.push('/checkout')}
+            className="flex-1 h-11 text-xs font-bold shadow-md bg-brand-primary hover:bg-brand-hover text-white"
           >
             <span>Buy Now</span>
             <ArrowRight className="w-3.5 h-3.5 ml-1" />

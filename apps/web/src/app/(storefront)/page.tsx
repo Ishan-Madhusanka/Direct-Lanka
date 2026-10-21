@@ -22,6 +22,7 @@ import {
   Zap,
   Check,
   CheckCircle2,
+  X,
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ import { Badge } from '@/components/ui/badge';
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('all');
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const [cartToast, setCartToast] = useState<string | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -357,10 +359,12 @@ export default function HomePage() {
                 </div>
 
                 {/* Bundle Button */}
-                <Button className="w-full mt-4 h-11 text-sm font-bold shadow-sm">
-                  <ShoppingBag className="w-4 h-4 mr-2" />
-                  <span>Claim Bundle Deal</span>
-                </Button>
+                <Link href="/products/singer-electric-kettle-1-8l" className="block mt-4">
+                  <Button className="w-full h-11 text-sm font-bold shadow-sm">
+                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    <span>Claim Bundle Deal</span>
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -467,12 +471,14 @@ export default function HomePage() {
                   <div>
                     {/* Product Image Frame */}
                     <div className="relative aspect-square bg-slate-50 overflow-hidden">
-                      <Image
-                        src={p.image}
-                        alt={p.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      <Link href="/products/singer-electric-kettle-1-8l" className="block w-full h-full">
+                        <Image
+                          src={p.image}
+                          alt={p.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </Link>
 
                       {/* Top Left Discount Badge */}
                       <div className="absolute top-2.5 left-2.5">
@@ -487,7 +493,7 @@ export default function HomePage() {
                       {/* Favorite Heart Button */}
                       <button
                         onClick={() => toggleFavorite(p.id)}
-                        className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-white shadow-xs transition-colors"
+                        className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-white shadow-xs transition-colors cursor-pointer"
                         aria-label="Add to favorites"
                       >
                         <Heart
@@ -510,9 +516,11 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      <h3 className="font-heading font-bold text-xs sm:text-sm text-slate-900 group-hover:text-brand-primary transition-colors line-clamp-2 leading-snug">
-                        {p.title}
-                      </h3>
+                      <Link href="/products/singer-electric-kettle-1-8l" className="block">
+                        <h3 className="font-heading font-bold text-xs sm:text-sm text-slate-900 group-hover:text-brand-primary transition-colors line-clamp-2 leading-snug">
+                          {p.title}
+                        </h3>
+                      </Link>
 
                       {/* Pricing */}
                       <div className="pt-1.5 flex items-baseline gap-2">
@@ -532,7 +540,11 @@ export default function HomePage() {
                   <div className="p-3.5 sm:p-4 pt-0">
                     <Button
                       size="sm"
-                      className="w-full text-xs font-bold h-9 sm:h-10 shadow-xs"
+                      onClick={() => {
+                        setCartToast(p.title);
+                        setTimeout(() => setCartToast(null), 3500);
+                      }}
+                      className="w-full text-xs font-bold h-9 sm:h-10 shadow-xs cursor-pointer active:scale-95 transition-transform"
                     >
                       <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
                       <span>Add to Cart</span>
@@ -818,6 +830,41 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
+
+      {/* Floating Add to Cart Notification */}
+      {cartToast && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-md bg-white border border-emerald-300 rounded-2xl shadow-xl p-4 flex items-center justify-between gap-4 animate-in slide-in-from-bottom-5">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-900 line-clamp-1">{cartToast}</p>
+              <p className="text-[11px] text-emerald-700 font-medium">Added to shopping cart</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/cart"
+              className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold transition-colors"
+            >
+              View Cart
+            </Link>
+            <Link
+              href="/checkout"
+              className="px-3 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold transition-colors shadow-xs"
+            >
+              Checkout →
+            </Link>
+            <button
+              onClick={() => setCartToast(null)}
+              className="p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
 
   // Error Alert State (Matches Artboard screenshot demonstration)
-  const [showAlert, setShowAlert] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState<'error' | 'success'>('error');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -265,6 +265,21 @@ export default function AdminLoginPage() {
               )}
             </Button>
           </form>
+
+          {/* Quick 1-Click Demo Login Button */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                router.push('/admin');
+              }}
+              className="w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Zap className="w-3.5 h-3.5 text-brand-primary fill-brand-primary" />
+              <span>1-Click Quick Demo Login (Admin)</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </button>
+          </div>
 
           {/* Mobile Switcher Button: Go to Customer Website */}
           <div className="sm:hidden pt-3">

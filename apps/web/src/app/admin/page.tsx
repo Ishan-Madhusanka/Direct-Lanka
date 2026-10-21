@@ -805,11 +805,11 @@ export default function AdminDashboardPage() {
                 DF
               </div>
               <div>
-                <p className="font-heading font-black text-xs text-slate-900 leading-tight">
+                <Link href="/admin/orders/LD-84920" className="font-heading font-black text-xs text-slate-900 leading-tight hover:text-brand-primary">
                   Dinuka Fernando <span className="font-normal text-slate-400">• Colombo 03</span>
-                </p>
+                </Link>
                 <p className="text-[10px] text-slate-400 font-medium">
-                  #LD-84920 • 12 mins ago
+                  <Link href="/admin/orders/LD-84920" className="text-brand-primary font-bold hover:underline">#LD-84920</Link> • 12 mins ago
                 </p>
               </div>
             </div>
@@ -826,13 +826,13 @@ export default function AdminDashboardPage() {
             <span className="font-heading font-black text-slate-900">Rs. 7,550</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="grid grid-cols-3 gap-2 pt-1">
             <a
               href="tel:+94771234567"
-              className="h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition-colors"
+              className="h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center justify-center gap-1 transition-colors"
             >
               <Phone className="w-3.5 h-3.5 text-slate-500" />
-              <span>Call Client</span>
+              <span>Call</span>
             </a>
             <Button
               disabled={confirmedOrders['84920']}
@@ -840,8 +840,14 @@ export default function AdminDashboardPage() {
               className="h-9 rounded-xl text-xs font-bold"
             >
               <Check className="w-3.5 h-3.5 mr-1" />
-              <span>{confirmedOrders['84920'] ? 'Confirmed ✓' : 'Confirm Order'}</span>
+              <span>{confirmedOrders['84920'] ? 'Confirmed' : 'Confirm'}</span>
             </Button>
+            <Link
+              href="/admin/orders/LD-84920"
+              className="h-9 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-xs font-bold text-brand-primary flex items-center justify-center gap-1 transition-colors"
+            >
+              <span>Manage →</span>
+            </Link>
           </div>
         </div>
 
@@ -853,11 +859,11 @@ export default function AdminDashboardPage() {
                 MS
               </div>
               <div>
-                <p className="font-heading font-black text-xs text-slate-900 leading-tight">
+                <Link href="/admin/orders/LD-84919" className="font-heading font-black text-xs text-slate-900 leading-tight hover:text-brand-primary">
                   Malkanthi Silva <span className="font-normal text-slate-400">• Kandy City</span>
-                </p>
+                </Link>
                 <p className="text-[10px] text-slate-400 font-medium">
-                  #LD-84919 • 34 mins ago
+                  <Link href="/admin/orders/LD-84919" className="text-brand-primary font-bold hover:underline">#LD-84919</Link> • 34 mins ago
                 </p>
               </div>
             </div>
@@ -874,15 +880,23 @@ export default function AdminDashboardPage() {
             <span className="font-heading font-black text-slate-900">Rs. 8,650</span>
           </div>
 
-          <Button
-            onClick={() => {
-              showToast('Order #LD-84919 marked ready for Pronto/PickMe Courier!');
-            }}
-            className="w-full h-9 rounded-xl text-xs font-bold"
-          >
-            <Truck className="w-3.5 h-3.5 mr-1.5" />
-            <span>Ready for Courier (Pronto / PickMe)</span>
-          </Button>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <Button
+              onClick={() => {
+                showToast('Order #LD-84919 marked ready for Pronto/PickMe Courier!');
+              }}
+              className="w-full h-9 rounded-xl text-xs font-bold"
+            >
+              <Truck className="w-3.5 h-3.5 mr-1.5" />
+              <span>Ready for Courier</span>
+            </Button>
+            <Link
+              href="/admin/orders/LD-84919"
+              className="w-full h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center justify-center gap-1 transition-colors"
+            >
+              <span>Manage Details →</span>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -1019,17 +1033,22 @@ export default function AdminDashboardPage() {
                     <th className="pb-3 font-black">Total (LKR)</th>
                     <th className="pb-3 font-black">Payment</th>
                     <th className="pb-3 font-black">Status</th>
+                    <th className="pb-3 font-black text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
                   {/* Row 1 */}
                   <tr className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-3.5">
-                      <p className="font-heading font-black text-slate-900">#LD-84920</p>
+                      <Link href="/admin/orders/LD-84920" className="font-heading font-black text-brand-primary hover:underline block">
+                        #LD-84920
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-normal">10 mins ago</p>
                     </td>
                     <td className="py-3.5">
-                      <p className="font-bold text-slate-900">Dinuka Fernando</p>
+                      <Link href="/admin/orders/LD-84920" className="font-bold text-slate-900 hover:text-brand-primary block">
+                        Dinuka Fernando
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-medium">📍 Colombo 03</p>
                     </td>
                     <td className="py-3.5">
@@ -1049,16 +1068,28 @@ export default function AdminDashboardPage() {
                         Pending Confirmation
                       </span>
                     </td>
+                    <td className="py-3.5 text-right">
+                      <Link
+                        href="/admin/orders/LD-84920"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 text-brand-primary font-bold text-[11px] transition-colors"
+                      >
+                        Manage →
+                      </Link>
+                    </td>
                   </tr>
 
                   {/* Row 2 */}
                   <tr className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-3.5">
-                      <p className="font-heading font-black text-slate-900">#LD-84919</p>
+                      <Link href="/admin/orders/LD-84919" className="font-heading font-black text-brand-primary hover:underline block">
+                        #LD-84919
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-normal">42 mins ago</p>
                     </td>
                     <td className="py-3.5">
-                      <p className="font-bold text-slate-900">Malkanthi Silva</p>
+                      <Link href="/admin/orders/LD-84919" className="font-bold text-slate-900 hover:text-brand-primary block">
+                        Malkanthi Silva
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-medium">📍 Kandy</p>
                     </td>
                     <td className="py-3.5">
@@ -1078,16 +1109,28 @@ export default function AdminDashboardPage() {
                         Confirmed
                       </span>
                     </td>
+                    <td className="py-3.5 text-right">
+                      <Link
+                        href="/admin/orders/LD-84919"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors"
+                      >
+                        Manage →
+                      </Link>
+                    </td>
                   </tr>
 
                   {/* Row 3 */}
                   <tr className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-3.5">
-                      <p className="font-heading font-black text-slate-900">#LD-84918</p>
+                      <Link href="/admin/orders/LD-84918" className="font-heading font-black text-brand-primary hover:underline block">
+                        #LD-84918
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-normal">2 hrs ago</p>
                     </td>
                     <td className="py-3.5">
-                      <p className="font-bold text-slate-900">Rohan Jayasuriya</p>
+                      <Link href="/admin/orders/LD-84918" className="font-bold text-slate-900 hover:text-brand-primary block">
+                        Rohan Jayasuriya
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-medium">📍 Galle</p>
                     </td>
                     <td className="py-3.5">
@@ -1107,16 +1150,28 @@ export default function AdminDashboardPage() {
                         Dispatched
                       </span>
                     </td>
+                    <td className="py-3.5 text-right">
+                      <Link
+                        href="/admin/orders/LD-84918"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors"
+                      >
+                        Manage →
+                      </Link>
+                    </td>
                   </tr>
 
                   {/* Row 4 */}
                   <tr className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-3.5">
-                      <p className="font-heading font-black text-slate-900">#LD-84917</p>
+                      <Link href="/admin/orders/LD-84917" className="font-heading font-black text-brand-primary hover:underline block">
+                        #LD-84917
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-normal">4 hrs ago</p>
                     </td>
                     <td className="py-3.5">
-                      <p className="font-bold text-slate-900">Anura Perera</p>
+                      <Link href="/admin/orders/LD-84917" className="font-bold text-slate-900 hover:text-brand-primary block">
+                        Anura Perera
+                      </Link>
                       <p className="text-[10px] text-slate-400 font-medium">📍 Colombo 05</p>
                     </td>
                     <td className="py-3.5">
@@ -1135,6 +1190,14 @@ export default function AdminDashboardPage() {
                       <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black">
                         Delivered
                       </span>
+                    </td>
+                    <td className="py-3.5 text-right">
+                      <Link
+                        href="/admin/orders/LD-84917"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors"
+                      >
+                        Manage →
+                      </Link>
                     </td>
                   </tr>
                 </tbody>
