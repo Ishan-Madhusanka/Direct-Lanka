@@ -152,11 +152,10 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowErrorAlert(!showErrorAlert)}
-              className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer ${
-                showErrorAlert
+              className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer ${showErrorAlert
                   ? 'bg-red-600 text-white shadow-xs'
                   : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-              }`}
+                }`}
             >
               {showErrorAlert ? 'Hide Error Alert' : 'Toggle Error Alert'}
             </button>
@@ -483,10 +482,10 @@ export default function LoginPage() {
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                 <span className="text-slate-500">Need telephone support?</span>
                 <a
-                  href="tel:+94117445500"
+                  href="tel:+94762018285"
                   className="font-heading font-black text-brand-hover hover:underline"
                 >
-                  📞 +94 11 744 5500
+                  📞 +94762018285
                 </a>
               </div>
             </div>
