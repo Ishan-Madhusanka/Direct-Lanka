@@ -215,9 +215,8 @@ export function StorefrontFooter() {
                     >
                       <span>{sec.title}</span>
                       <ChevronDown
-                        className={`w-4 h-4 text-slate-400 transition-transform ${
-                          openAccordion === sec.id ? 'rotate-180 text-brand-primary' : ''
-                        }`}
+                        className={`w-4 h-4 text-slate-400 transition-transform ${openAccordion === sec.id ? 'rotate-180 text-brand-primary' : ''
+                          }`}
                       />
                     </button>
                     {openAccordion === sec.id && (
@@ -273,9 +272,8 @@ export function StorefrontFooter() {
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 py-1.5 px-3 shadow-lg flex items-center justify-around">
         <Link
           href="/"
-          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
-            isHome ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
-          }`}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${isHome ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+            }`}
         >
           <Home className={`w-5 h-5 ${isHome ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Home</span>
@@ -283,9 +281,8 @@ export function StorefrontFooter() {
 
         <Link
           href="/catalog"
-          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
-            isShop ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
-          }`}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${isShop ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+            }`}
         >
           <Store className={`w-5 h-5 ${isShop ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Shop</span>
@@ -293,9 +290,8 @@ export function StorefrontFooter() {
 
         <Link
           href="/categories/home-kitchen"
-          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
-            isCategories ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
-          }`}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${isCategories ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+            }`}
         >
           <LayoutGrid className={`w-5 h-5 ${isCategories ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Categories</span>
@@ -303,9 +299,8 @@ export function StorefrontFooter() {
 
         <Link
           href="/catalog?deals=true"
-          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
-            isDeals ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
-          }`}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${isDeals ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+            }`}
         >
           <Tag className={`w-5 h-5 ${isDeals ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Deals</span>
@@ -313,9 +308,8 @@ export function StorefrontFooter() {
 
         <Link
           href="/account"
-          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${
-            isAccount ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
-          }`}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition-colors ${isAccount ? 'text-brand-primary font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'
+            }`}
         >
           <User className={`w-5 h-5 ${isAccount ? 'text-brand-primary' : 'text-slate-400'}`} />
           <span>Account</span>

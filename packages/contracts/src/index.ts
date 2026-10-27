@@ -135,3 +135,32 @@ export interface ApiErrorResponse {
   message: string;
   details?: Record<string, unknown> | null;
 }
+
+/**
+ * Authentication & User Contracts
+ */
+export interface UserContract {
+  id: string;
+  email: string;
+  fullName: string;
+  phoneNumber?: string | null;
+  role: UserRole;
+  createdAt: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password?: string;
+}
+
+export interface RegisterRequest {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  password?: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  user: UserContract;
+}

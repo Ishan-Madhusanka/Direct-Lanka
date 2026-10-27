@@ -8,7 +8,11 @@
     "build": "pnpm --filter @lankadirect/web build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "clean": "pnpm -r --parallel exec rimraf node_modules .next dist"
+    "clean": "pnpm -r --parallel exec rimraf node_modules .next dist",
+    "dev:api": "pnpm --filter @lankadirect/api start:dev",
+    "build:api": "pnpm --filter @lankadirect/api build",
+    "prisma:push": "pnpm --filter @lankadirect/api prisma:push",
+    "prisma:generate": "pnpm --filter @lankadirect/api prisma:generate"
   },
   "devDependencies": {
     "prettier": "^3.4.2",
