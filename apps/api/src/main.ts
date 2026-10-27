@@ -37,6 +37,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.get('/', (req, res) => {
+    res.redirect('/api/docs');
+  });
+
+
   const port = process.env.PORT || 4000;
   await app.listen(port);
   logger.log(`🚀 LankaDirect Production API is running on: http://localhost:${port}/api/v1`);

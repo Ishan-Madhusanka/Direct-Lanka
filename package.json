@@ -12,7 +12,8 @@
     "dev:api": "pnpm --filter @lankadirect/api start:dev",
     "build:api": "pnpm --filter @lankadirect/api build",
     "prisma:push": "pnpm --filter @lankadirect/api prisma:push",
-    "prisma:generate": "pnpm --filter @lankadirect/api prisma:generate"
+    "prisma:generate": "pnpm --filter @lankadirect/api prisma:generate",
+    "dev:all": "pnpm -r --parallel dev"
   },
   "devDependencies": {
     "prettier": "^3.4.2",
