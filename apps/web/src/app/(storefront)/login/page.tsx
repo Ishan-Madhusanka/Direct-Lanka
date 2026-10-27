@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
+import { authLogin, authForgotPassword } from '@/lib/api-client';
 
 function LoginContent() {
   const router = useRouter();
@@ -43,33 +44,46 @@ function LoginContent() {
 
   // Interactive preview states (From Stitch Artboard)
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [loginErrorMessage, setLoginErrorMessage] = useState('Invalid email or password. Please verify your Sri Lankan credentials or try again.');
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState('registered.email@lk.com');
   const [resetSent, setResetSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setShowErrorAlert(false);
 
-    // Simulate login verification
-    setTimeout(() => {
-      setIsLoading(false);
-      if (email.includes('error') || password === 'wrong') {
-        setShowErrorAlert(true);
-      } else if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('owner')) {
+    try {
+      const authRes = await authLogin({
+        email: email.trim(),
+        password,
+      });
+
+      if (authRes.user.role === 'ADMIN') {
         router.push('/admin');
       } else if (redirectParam) {
         router.push(redirectParam);
       } else {
         router.push('/account');
       }
-    }, 600);
+    } catch (err: any) {
+      setLoginErrorMessage(err?.message || 'Invalid email or password. Please verify your Sri Lankan credentials or try again.');
+      setShowErrorAlert(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleResetSubmit = (e: React.FormEvent) => {
+  const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (resetEmail.trim()) {
+      try {
+        await authForgotPassword(resetEmail.trim());
+      } catch {
+        // Proceed with simulated notification for user privacy
+      }
       setResetSent(true);
       setTimeout(() => {
         setResetSent(false);
@@ -217,7 +231,7 @@ function LoginContent() {
                   Login unsuccessful
                 </h4>
                 <p className="text-xs text-red-700 mt-0.5 leading-relaxed">
-                  Invalid email or password. Please verify your Sri Lankan credentials or try again.
+                  {loginErrorMessage}
                 </p>
               </div>
             </div>

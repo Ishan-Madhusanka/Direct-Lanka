@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
+import { getStoredUser, clearAuthSession } from '@/lib/api-client';
 
 export default function AccountPage() {
   const router = useRouter();
@@ -44,6 +45,24 @@ export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'settings'>('overview');
 
   // Profile data
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user) {
+      setProfile((prev) => ({
+        ...prev,
+        name: user.fullName || prev.name,
+        email: user.email || prev.email,
+        phone: user.phoneNumber || prev.phone,
+      }));
+    }
+  }, []);
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    clearAuthSession();
+    router.push('/login');
+  };
+
   const [profile, setProfile] = useState({
     name: 'Dinuka Fernando',
     email: 'dinuka.f@gmail.com',
@@ -384,13 +403,14 @@ export default function AccountPage() {
               </button>
 
               <div className="pt-2 border-t border-slate-100 mt-2">
-                <Link
-                  href="/login"
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Log Out</span>
-                </Link>
+                </button>
               </div>
             </div>
 
@@ -862,9 +882,10 @@ export default function AccountPage() {
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
 
-              <Link
-                href="/login"
-                className="p-4 flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors"
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full p-4 flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
@@ -873,7 +894,7 @@ export default function AccountPage() {
                   <h4 className="font-heading font-bold text-xs">Log Out</h4>
                 </div>
                 <ChevronRight className="w-4 h-4 text-red-400" />
-              </Link>
+              </button>
             </div>
 
             {/* Mobile Island-Wide Delivery Card */}

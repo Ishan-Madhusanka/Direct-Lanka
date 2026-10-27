@@ -19,6 +19,7 @@ import {
   RotateCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { authLogin, authForgotPassword } from '@/lib/api-client';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function AdminLoginPage() {
 
   // Error Alert State (Matches Artboard screenshot demonstration)
   const [showAlert, setShowAlert] = useState(false);
+  const [adminErrorMessage, setAdminErrorMessage] = useState('Invalid email or password. Please verify your admin credentials.');
   const [alertType, setAlertType] = useState<'error' | 'success'>('error');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,23 +41,39 @@ export default function AdminLoginPage() {
   const [forgotEmail, setForgotEmail] = useState('admin@lankadirect.lk');
   const [forgotFeedback, setForgotFeedback] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setShowAlert(false);
 
-    // Simulate authenticating
-    setTimeout(() => {
-      setIsLoading(false);
-      if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('owner')) {
-        router.push('/admin');
-      } else {
+    try {
+      const res = await authLogin({
+        email: email.trim(),
+        password,
+      });
+
+      if (res.user.role !== 'ADMIN') {
+        setAdminErrorMessage('Unauthorized access: This account does not possess administrator privileges.');
         setShowAlert(true);
+        return;
       }
-    }, 900);
+
+      router.push('/admin');
+    } catch (err: any) {
+      setAdminErrorMessage(err?.message || 'Invalid administrator credentials. Access denied.');
+      setShowAlert(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleForgotSubmit = (e: React.FormEvent) => {
+  const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await authForgotPassword(forgotEmail.trim());
+    } catch {
+      // acknowledge safely
+    }
     setForgotFeedback('A secure reset link has been dispatched to your authorized inbox.');
     setTimeout(() => {
       setForgotFeedback('');
@@ -146,7 +164,7 @@ export default function AdminLoginPage() {
                 <div className="leading-snug">
                   {/* Desktop copy */}
                   <span className="hidden sm:inline font-semibold">
-                    Invalid email or password. Please verify your admin credentials.
+                    {adminErrorMessage}
                   </span>
                   {/* Mobile copy */}
                   <div className="sm:hidden space-y-0.5">
@@ -154,7 +172,7 @@ export default function AdminLoginPage() {
                       Invalid credentials
                     </span>
                     <span className="text-[11px] text-red-700 block">
-                      Please re-check your password.
+                      {adminErrorMessage}
                     </span>
                   </div>
                 </div>

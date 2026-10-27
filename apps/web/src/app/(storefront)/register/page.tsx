@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
+import { authRegister } from '@/lib/api-client';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -46,7 +47,8 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = useState(true);
 
   // Status & preview states
-  const [showSuccessPreview, setShowSuccessPreview] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showSuccessPreview, setShowSuccessPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Password validation checks
@@ -66,27 +68,42 @@ export default function RegisterPage() {
       ? 'Medium'
       : 'Strong';
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+
     if (!agreed) {
-      alert('Please agree to LankaDirect’s Terms of Service and Privacy Policy.');
+      setErrorMessage("Please agree to LankaDirect's Terms of Service and Privacy Policy.");
       return;
     }
     if (!passwordsMatch) {
-      alert('Passwords do not match. Please verify your password entry.');
+      setErrorMessage('Passwords do not match. Please verify your password entry.');
+      return;
+    }
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters in length.');
       return;
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await authRegister({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phoneNumber: phone.trim(),
+        password,
+      });
       setShowSuccessPreview(true);
-      // Route to account dashboard after registration
       setTimeout(() => {
         router.push('/account');
-      }, 1200);
-    }, 600);
+      }, 1500);
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Registration failed. Please check your credentials and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <div className="bg-[#FAFBFD] min-h-screen pb-20 text-slate-900 font-sans">
@@ -232,6 +249,12 @@ export default function RegisterPage() {
             </div>
 
             {/* Registration Form */}
+            {errorMessage && (
+              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-start gap-2.5 animate-in fade-in">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               {/* Full Name */}
               <div className="space-y-1.5">
