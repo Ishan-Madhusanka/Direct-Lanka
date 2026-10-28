@@ -37,11 +37,11 @@ export default function RegisterPage() {
   const router = useRouter();
 
   // Form states
-  const [fullName, setFullName] = useState('Kasun Perera');
-  const [email, setEmail] = useState('kasun.perera@gmail.com');
-  const [phone, setPhone] = useState('077 348 9120');
-  const [password, setPassword] = useState('AdminPass123!');
-  const [confirmPassword, setConfirmPassword] = useState('AdminPass123!');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreed, setAgreed] = useState(true);

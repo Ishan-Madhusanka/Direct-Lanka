@@ -37,8 +37,8 @@ function LoginContent() {
   const redirectParam = searchParams.get('redirect');
 
   // Form states
-  const [email, setEmail] = useState('kasun.perera@gmail.lk');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
