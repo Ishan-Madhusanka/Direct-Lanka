@@ -79,8 +79,46 @@ export default function RegisterPage() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
+  // Neutralize aggressive browser credential / phone autofill on initial mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPassword('');
+      setConfirmPassword('');
+      setPhone((prev) => (prev.length > 0 && !prev.startsWith('0') ? '' : prev));
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Validation helpers
   const isEmailValid = email.trim() !== '' && EMAIL_REGEX.test(email.trim());
+  const isPhoneValid = phone.length === 10 && phone.startsWith('0');
+
+  const getPhoneError = () => {
+    if (!phoneTouched || phone.length === 0) return null;
+    if (!phone.startsWith('0')) {
+      return 'Mobile number must start with 0.';
+    }
+    if (phone.length < 10) {
+      return `Must be exactly 10 digits (${phone.length}/10 entered).`;
+    }
+    return null;
+  };
+  const phoneError = getPhoneError();
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let digits = e.target.value.replace(/\D/g, '');
+    // If pasted with country code 94 (e.g. 94771234567), normalize to 0771234567
+    if (digits.startsWith('94') && digits.length >= 11) {
+      digits = '0' + digits.slice(2);
+    }
+    // Limit to max 10 digits
+    if (digits.length > 10) {
+      digits = digits.slice(0, 10);
+    }
+    setPhone(digits);
+    if (errorMessage) setErrorMessage(null);
+  };
+
   const hasMinLength = password.length >= 8;
   const hasNumber = /\d/.test(password);
   const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
@@ -92,10 +130,10 @@ export default function RegisterPage() {
     password.length === 0
       ? ''
       : strengthScore <= 1
-      ? 'Too short'
-      : strengthScore <= 3
-      ? 'Medium'
-      : 'Strong';
+        ? 'Too short'
+        : strengthScore <= 3
+          ? 'Medium'
+          : 'Strong';
 
   // Handle Register Form Submission
   const handleRegisterSubmit = async (e: React.FormEvent) => {
@@ -113,11 +151,19 @@ export default function RegisterPage() {
       return;
     }
     if (!isEmailValid) {
-      setErrorMessage('Please enter a valid email address (e.g. name@domain.com).');
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
     if (!phone.trim()) {
-      setErrorMessage('Please enter your Sri Lankan phone number.');
+      setErrorMessage('Please enter your mobile number.');
+      return;
+    }
+    if (!phone.startsWith('0')) {
+      setErrorMessage('Mobile number must start with 0 (e.g. 07XXXXXXXX).');
+      return;
+    }
+    if (phone.length !== 10) {
+      setErrorMessage('Mobile number must contain exactly 10 digits (e.g. 07XXXXXXXX).');
       return;
     }
     if (password.length < 6) {
@@ -308,24 +354,30 @@ export default function RegisterPage() {
             )}
 
             {/* Registration Form */}
-            <form onSubmit={handleRegisterSubmit} noValidate className="space-y-4">
+            <form onSubmit={handleRegisterSubmit} noValidate autoComplete="off" className="space-y-4">
+              {/* Browser Autofill Neutralizers */}
+              <input type="text" name="fake_username_neutralizer" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+              <input type="password" name="fake_password_neutralizer" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+
               {/* Full Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 block">
+                <label htmlFor="reg-fullname" className="text-xs font-bold text-slate-700 block">
                   Full Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
+                    id="reg-fullname"
+                    name="reg_fullname"
                     type="text"
                     required
+                    autoComplete="off"
                     value={fullName}
                     onChange={(e) => {
                       setFullName(e.target.value);
                       if (errorMessage) setErrorMessage(null);
                     }}
                     onBlur={() => setFullNameTouched(true)}
-                    placeholder="e.g. Kasun Perera"
                     className="w-full h-11 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
                   />
                 </div>
@@ -334,32 +386,32 @@ export default function RegisterPage() {
               {/* Email Address */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <label className="font-bold text-slate-700">
+                  <label htmlFor="reg-email" className="font-bold text-slate-700">
                     Email Address <span className="text-red-500">*</span>
                   </label>
                   <span className="text-[10px] text-slate-400">Verification code will be sent</span>
                 </div>
                 <div className="relative">
                   <Mail
-                    className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${
-                      isEmailValid ? 'text-emerald-600' : 'text-slate-400'
-                    }`}
+                    className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${isEmailValid ? 'text-emerald-600' : 'text-slate-400'
+                      }`}
                   />
                   <input
+                    id="reg-email"
+                    name="reg_email"
                     type="email"
                     required
+                    autoComplete="off"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
                       if (errorMessage) setErrorMessage(null);
                     }}
                     onBlur={() => setEmailTouched(true)}
-                    placeholder="name@domain.com"
-                    className={`w-full h-11 pl-10 pr-10 rounded-xl border text-xs font-semibold text-slate-900 transition-colors outline-none ${
-                      isEmailValid
+                    className={`w-full h-11 pl-10 pr-10 rounded-xl border text-xs font-semibold text-slate-900 transition-colors outline-none ${isEmailValid
                         ? 'border-emerald-300 bg-emerald-50/10 focus:border-emerald-500'
                         : 'border-slate-200 bg-slate-50/50 focus:bg-white focus:border-brand-primary'
-                    }`}
+                      }`}
                   />
                   {isEmailValid && (
                     <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
@@ -369,31 +421,55 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Sri Lankan Mobile Number */}
+              {/* Mobile Number */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <label className="font-bold text-slate-700">
-                    Sri Lankan Mobile Number <span className="text-red-500">*</span>
+                  <label htmlFor="reg-phone" className="font-bold text-slate-700">
+                    Mobile Number <span className="text-red-500">*</span>
                   </label>
                   <span className="text-[10px] text-slate-400 hidden sm:inline">
                     For courier &amp; SMS delivery tracking
                   </span>
                 </div>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value);
-                      if (errorMessage) setErrorMessage(null);
-                    }}
-                    onBlur={() => setPhoneTouched(true)}
-                    placeholder="e.g. 077 123 4567"
-                    className="w-full h-11 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
+                  <Phone
+                    className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${phoneError
+                        ? 'text-red-500'
+                        : isPhoneValid
+                          ? 'text-emerald-600'
+                          : 'text-slate-400'
+                      }`}
                   />
+                  <input
+                    id="reg-phone"
+                    name="reg_phone"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    required
+                    autoComplete="off"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    onBlur={() => setPhoneTouched(true)}
+                    className={`w-full h-11 pl-10 pr-10 rounded-xl border text-xs font-semibold text-slate-900 transition-colors outline-none ${phoneError
+                        ? 'border-red-300 bg-red-50/10 focus:border-red-500'
+                        : isPhoneValid
+                          ? 'border-emerald-300 bg-emerald-50/10 focus:border-emerald-500'
+                          : 'border-slate-200 bg-slate-50/50 focus:bg-white focus:border-brand-primary'
+                      }`}
+                  />
+                  {isPhoneValid && (
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600 pointer-events-none animate-in fade-in">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
+                  )}
                 </div>
+                {phoneError && (
+                  <p className="text-[11px] font-medium text-red-600 flex items-center gap-1.5 mt-1 animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{phoneError}</span>
+                  </p>
+                )}
               </div>
 
               {/* Password & Confirm Password Grid */}
@@ -401,18 +477,17 @@ export default function RegisterPage() {
                 {/* Password */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <label className="font-bold text-slate-700">
+                    <label htmlFor="reg-password" className="font-bold text-slate-700">
                       Password <span className="text-red-500">*</span>
                     </label>
                     {password.length > 0 && (
                       <span
-                        className={`text-[10px] font-bold ${
-                          strengthScore <= 1
+                        className={`text-[10px] font-bold ${strengthScore <= 1
                             ? 'text-red-500'
                             : strengthScore <= 3
-                            ? 'text-amber-500'
-                            : 'text-emerald-600'
-                        }`}
+                              ? 'text-amber-500'
+                              : 'text-emerald-600'
+                          }`}
                       >
                         {strengthLabel}
                       </span>
@@ -421,7 +496,10 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
+                      id="reg-password"
+                      name="reg_user_password"
                       type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
                       required
                       value={password}
                       onChange={(e) => {
@@ -429,7 +507,6 @@ export default function RegisterPage() {
                         if (errorMessage) setErrorMessage(null);
                       }}
                       onBlur={() => setPasswordTouched(true)}
-                      placeholder="Min. 8 characters"
                       className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
                     />
                     <button
@@ -445,14 +522,13 @@ export default function RegisterPage() {
                 {/* Confirm Password */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <label className="font-bold text-slate-700">
+                    <label htmlFor="reg-confirm-password" className="font-bold text-slate-700">
                       Confirm Password <span className="text-red-500">*</span>
                     </label>
                     {confirmPassword.length > 0 && (
                       <span
-                        className={`text-[10px] font-bold ${
-                          passwordsMatch ? 'text-emerald-600' : 'text-red-500'
-                        }`}
+                        className={`text-[10px] font-bold ${passwordsMatch ? 'text-emerald-600' : 'text-red-500'
+                          }`}
                       >
                         {passwordsMatch ? '✓ Matches' : 'Mismatch'}
                       </span>
@@ -461,7 +537,10 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
+                      id="reg-confirm-password"
+                      name="reg_user_confirm_password"
                       type={showConfirmPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
                       required
                       value={confirmPassword}
                       onChange={(e) => {
@@ -469,7 +548,6 @@ export default function RegisterPage() {
                         if (errorMessage) setErrorMessage(null);
                       }}
                       onBlur={() => setConfirmPasswordTouched(true)}
-                      placeholder="Re-type password"
                       className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
                     />
                     <button
@@ -756,17 +834,16 @@ export default function RegisterPage() {
                     type="button"
                     disabled={resendCooldown > 0 || isResending}
                     onClick={handleResendOtp}
-                    className={`font-bold transition-colors cursor-pointer ${
-                      resendCooldown > 0
+                    className={`font-bold transition-colors cursor-pointer ${resendCooldown > 0
                         ? 'text-slate-400 cursor-not-allowed'
                         : 'text-brand-primary hover:underline'
-                    }`}
+                      }`}
                   >
                     {resendCooldown > 0
                       ? `Resend code in ${resendCooldown}s`
                       : isResending
-                      ? 'Sending...'
-                      : 'Resend Code'}
+                        ? 'Sending...'
+                        : 'Resend Code'}
                   </button>
                 </div>
               </form>
