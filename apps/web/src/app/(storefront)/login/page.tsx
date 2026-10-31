@@ -319,7 +319,6 @@ function LoginContent() {
                   <label htmlFor="login-email" className="font-bold text-slate-700">
                     Email Address <span className="text-red-500">*</span>
                   </label>
-                  <span className="text-[10px] text-slate-400 font-medium">e.g. name@domain.com</span>
                 </div>
                 <div className="relative">
                   <Mail
