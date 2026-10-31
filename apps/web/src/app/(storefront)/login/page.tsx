@@ -309,7 +309,10 @@ function LoginContent() {
             </div>
 
             {/* Login Form */}
-            <form onSubmit={handleLoginSubmit} noValidate className="space-y-4">
+            <form onSubmit={handleLoginSubmit} noValidate autoComplete="off" className="space-y-4">
+              {/* Prevent browser from auto-filling saved localhost passwords */}
+              <input type="text" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+              <input type="password" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
               {/* Email Address Field */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
@@ -330,9 +333,9 @@ function LoginContent() {
                   />
                   <input
                     id="login-email"
-                    name="email"
+                    name="customer_email"
                     type="email"
-                    autoComplete="email"
+                    autoComplete="off"
                     disabled={isLoading}
                     value={email}
                     onChange={(e) => {
@@ -399,9 +402,9 @@ function LoginContent() {
                   />
                   <input
                     id="login-password"
-                    name="password"
+                    name="customer_password"
                     type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     disabled={isLoading}
                     value={password}
                     onChange={(e) => {
