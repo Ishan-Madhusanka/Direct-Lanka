@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LankaDirect Production API Client
  * Connects frontend forms to the NestJS + Neon PostgreSQL backend.
  */
@@ -6,6 +6,9 @@ import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
+  RegisterResult,
+  VerifyOtpRequest,
+  ResendOtpRequest,
   UserContract,
 } from '@lankadirect/contracts';
 
@@ -58,13 +61,29 @@ async function request<T>(
   return data as T;
 }
 
-export async function authRegister(dto: RegisterRequest): Promise<AuthResponse> {
-  const result = await request<AuthResponse>('/auth/register', {
+export async function authRegister(dto: RegisterRequest): Promise<RegisterResult> {
+  return request<RegisterResult>('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function authVerifyOtp(dto: VerifyOtpRequest): Promise<AuthResponse> {
+  const result = await request<AuthResponse>('/auth/verify-otp', {
     method: 'POST',
     body: JSON.stringify(dto),
   });
   saveAuthSession(result);
   return result;
+}
+
+export async function authResendOtp(
+  dto: ResendOtpRequest
+): Promise<{ success: boolean; message: string }> {
+  return request<{ success: boolean; message: string }>('/auth/resend-otp', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
 }
 
 export async function authLogin(dto: LoginRequest): Promise<AuthResponse> {

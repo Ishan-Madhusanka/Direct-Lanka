@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, UserRole } from '@prisma/client';
+import { User, UserRole, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -30,12 +30,13 @@ export class UsersService implements OnModuleInit {
             phoneNumber: '+94 11 234 5678',
             role: UserRole.ADMIN,
             passwordHash: hashedPassword,
+            isEmailVerified: true,
           },
         });
         this.logger.log('Default admin seeded in PostgreSQL (admin@lankadirect.lk)');
       }
-    } catch (err) {
-      this.logger.warn('Admin seed skipped or pending migration: ' + err.message);
+    } catch (err: any) {
+      this.logger.warn('Admin seed skipped or pending migration: ' + err?.message);
     }
   }
 
@@ -57,6 +58,10 @@ export class UsersService implements OnModuleInit {
     phoneNumber?: string;
     passwordHash: string;
     role?: UserRole;
+    isEmailVerified?: boolean;
+    emailOtp?: string | null;
+    emailOtpExpiresAt?: Date | null;
+    otpAttempts?: number;
   }): Promise<User> {
     return this.prisma.user.create({
       data: {
@@ -65,7 +70,18 @@ export class UsersService implements OnModuleInit {
         phoneNumber: data.phoneNumber ? data.phoneNumber.trim() : null,
         passwordHash: data.passwordHash,
         role: data.role || UserRole.CUSTOMER,
+        isEmailVerified: data.isEmailVerified || false,
+        emailOtp: data.emailOtp,
+        emailOtpExpiresAt: data.emailOtpExpiresAt,
+        otpAttempts: data.otpAttempts || 0,
       },
+    });
+  }
+
+  async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data,
     });
   }
 }

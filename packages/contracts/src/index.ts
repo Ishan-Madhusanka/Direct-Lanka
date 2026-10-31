@@ -145,6 +145,7 @@ export interface UserContract {
   fullName: string;
   phoneNumber?: string | null;
   role: UserRole;
+  isEmailVerified?: boolean;
   createdAt: string;
 }
 
@@ -163,4 +164,19 @@ export interface RegisterRequest {
 export interface AuthResponse {
   accessToken: string;
   user: UserContract;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResendOtpRequest {
+  email: string;
+}
+
+export interface RegisterResult {
+  requiresVerification: boolean;
+  email: string;
+  message: string;
 }

@@ -1,4 +1,4 @@
-// LankaDirect Prisma Schema Draft
+// LankaDirect Prisma Schema
 // Single Source of Truth for Relational DB - PostgreSQL
 // Ownership: Shared / Explicit Change Request only
 
@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -41,12 +41,16 @@ enum UserRole {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String?
-  fullName     String
-  phoneNumber  String?
-  role         UserRole  @default(CUSTOMER)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String?
+  fullName          String
+  phoneNumber       String?
+  role              UserRole  @default(CUSTOMER)
+  isEmailVerified   Boolean   @default(false)
+  emailOtp          String?
+  emailOtpExpiresAt DateTime?
+  otpAttempts       Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
