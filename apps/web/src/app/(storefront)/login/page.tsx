@@ -20,38 +20,90 @@ import {
   ShoppingBag,
   HelpCircle,
   User,
-  Phone,
   CreditCard,
   MapPin,
   Send,
   UserPlus,
   Headphones,
+  Loader2,
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { authLogin, authForgotPassword } from '@/lib/api-client';
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirect');
 
-  // Form states
+  // Form input states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
-  // Interactive preview states (From Stitch Artboard)
+  // Field touch / blur states
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+
+  // Server & Form-level status states
   const [showErrorAlert, setShowErrorAlert] = useState(false);
-  const [loginErrorMessage, setLoginErrorMessage] = useState('Invalid email or password. Please verify your Sri Lankan credentials or try again.');
-  const [resetModalOpen, setResetModalOpen] = useState(false);
-  const [resetEmail, setResetEmail] = useState('registered.email@lk.com');
-  const [resetSent, setResetSent] = useState(false);
+  const [loginErrorMessage, setLoginErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Forgot Password Modal states
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmailTouched, setResetEmailTouched] = useState(false);
+  const [resetEmailError, setResetEmailError] = useState('');
+  const [resetIsLoading, setResetIsLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  // Client-side validation helpers
+  const getEmailValidationError = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return 'Email address is required.';
+    }
+    if (!EMAIL_REGEX.test(trimmed)) {
+      return 'Please enter a valid email address (e.g. name@domain.com).';
+    }
+    return '';
+  };
+
+  const getPasswordValidationError = (value: string): string => {
+    if (!value) {
+      return 'Password is required.';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters.';
+    }
+    return '';
+  };
+
+  const emailError = emailTouched ? getEmailValidationError(email) : '';
+  const isEmailValid = email.trim() !== '' && EMAIL_REGEX.test(email.trim());
+
+  const passwordError = passwordTouched ? getPasswordValidationError(password) : '';
+  const isPasswordValid = password.length >= 6;
+
+  // Handle Form Submission
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Mark all fields as touched for instant visual validation
+    setEmailTouched(true);
+    setPasswordTouched(true);
+
+    const emailErr = getEmailValidationError(email);
+    const passErr = getPasswordValidationError(password);
+
+    if (emailErr || passErr) {
+      return;
+    }
+
     setIsLoading(true);
     setShowErrorAlert(false);
 
@@ -61,6 +113,9 @@ function LoginContent() {
         password,
       });
 
+      // Smart role-based redirection:
+      // If user is ADMIN, route directly to /admin
+      // If customer, route to redirectParam or /account
       if (authRes.user.role === 'ADMIN') {
         router.push('/admin');
       } else if (redirectParam) {
@@ -69,31 +124,52 @@ function LoginContent() {
         router.push('/account');
       }
     } catch (err: any) {
-      setLoginErrorMessage(err?.message || 'Invalid email or password. Please verify your Sri Lankan credentials or try again.');
+      setLoginErrorMessage(
+        err?.message ||
+          'Invalid email or password. Please verify your credentials or reset your password.'
+      );
       setShowErrorAlert(true);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Handle Password Reset Submission
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (resetEmail.trim()) {
-      try {
-        await authForgotPassword(resetEmail.trim());
-      } catch {
-        // Proceed with simulated notification for user privacy
-      }
+    setResetEmailTouched(true);
+
+    const trimmed = resetEmail.trim();
+    if (!trimmed) {
+      setResetEmailError('Please enter your email address.');
+      return;
+    }
+    if (!EMAIL_REGEX.test(trimmed)) {
+      setResetEmailError('Please enter a valid email address.');
+      return;
+    }
+
+    setResetEmailError('');
+    setResetIsLoading(true);
+
+    try {
+      await authForgotPassword(trimmed);
+    } catch {
+      // Intentionally absorb errors to preserve security & user privacy
+    } finally {
+      setResetIsLoading(false);
       setResetSent(true);
       setTimeout(() => {
         setResetSent(false);
         setResetModalOpen(false);
-      }, 3000);
+        setResetEmail('');
+        setResetEmailTouched(false);
+      }, 3500);
     }
   };
 
   return (
-    <div className="bg-[#FAFBFD] min-h-screen pb-16 text-slate-900 font-sans">
+    <div className="bg-[#FAFBFD] min-h-screen pb-16 text-slate-900 font-sans selection:bg-brand-primary selection:text-white">
       {/* ======================================================== */}
       {/* 1. Desktop Top Navigation Strip */}
       {/* ======================================================== */}
@@ -117,7 +193,7 @@ function LoginContent() {
       </div>
 
       {/* ======================================================== */}
-      {/* 2. Mobile Header */}
+      {/* 2. Mobile Sticky Header */}
       {/* ======================================================== */}
       <div className="sm:hidden bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
@@ -125,12 +201,12 @@ function LoginContent() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="font-heading font-black text-base text-slate-900">
-            Customer Login
+            Sign In
           </h1>
         </div>
 
         <div className="flex items-center gap-3 text-slate-500">
-          <Link href="/faq" className="p-1 hover:text-slate-900">
+          <Link href="/faq" className="p-1 hover:text-slate-900" aria-label="Help & FAQ">
             <HelpCircle className="w-5 h-5" />
           </Link>
           <div className="w-8 h-8 rounded-full bg-orange-100 text-brand-hover flex items-center justify-center font-bold text-xs">
@@ -141,7 +217,7 @@ function LoginContent() {
 
       <Container className="pt-6 sm:pt-10 max-w-5xl">
         {/* ======================================================== */}
-        {/* 3. Centered Brand Logo (Desktop Artboard) */}
+        {/* 3. Centered Brand Identity Header */}
         {/* ======================================================== */}
         <div className="hidden sm:flex flex-col items-center justify-center text-center mb-8">
           <Link href="/" className="flex items-center gap-3 group">
@@ -160,75 +236,27 @@ function LoginContent() {
         </div>
 
         {/* ======================================================== */}
-        {/* 4. Interactive Preview States Bar (From Stitch Artboard) */}
-        {/* ======================================================== */}
-        <div className="mb-6 p-2.5 rounded-2xl bg-slate-100/80 border border-slate-200/90 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2 font-bold text-slate-700 px-2">
-            <Sparkles className="w-3.5 h-3.5 text-brand-primary" />
-            <span>Interactive Preview States:</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowErrorAlert(!showErrorAlert)}
-              className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer ${showErrorAlert
-                  ? 'bg-red-600 text-white shadow-xs'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-                }`}
-            >
-              {showErrorAlert ? 'Hide Error Alert' : 'Toggle Error Alert'}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setResetModalOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-orange-100 text-brand-hover hover:bg-orange-200/80 border border-orange-200 font-bold text-xs transition-colors cursor-pointer"
-            >
-              Open Reset Sheet
-            </button>
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* 5. Mobile Member Access Banner (Stitch Artboard) */}
-        {/* ======================================================== */}
-        <div className="sm:hidden mb-5 p-3.5 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50/50 border border-orange-200/70 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-orange-100 text-brand-primary flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="font-heading font-black text-xs text-brand-hover uppercase tracking-wider block">
-              LANKADIRECT MEMBER ACCESS
-            </span>
-            <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
-              Track island-wide orders, instant refunds &amp; exclusive LKR flash deals.
-            </p>
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* 6. Mobile Greeting (Stitch Artboard) */}
+        {/* 4. Mobile Member Greeting */}
         {/* ======================================================== */}
         <div className="sm:hidden mb-4">
           <h2 className="text-2xl font-heading font-black text-slate-900 tracking-tight">
             Ayubowan, Welcome Back!
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Sign in to sync your Colombo express cart &amp; saved cards.
+            Sign in to sync your cart, view order statuses &amp; saved addresses.
           </p>
         </div>
 
         {/* ======================================================== */}
-        {/* 7. Error Alert State (Mobile & Desktop) */}
+        {/* 5. Server / API Error Alert Notification */}
         {/* ======================================================== */}
         {showErrorAlert && (
-          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 flex items-start justify-between gap-3 animate-in fade-in">
+          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex items-start gap-2.5">
               <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-heading font-bold text-xs text-red-950">
-                  Login unsuccessful
+                  Authentication Failed
                 </h4>
                 <p className="text-xs text-red-700 mt-0.5 leading-relaxed">
                   {loginErrorMessage}
@@ -236,8 +264,10 @@ function LoginContent() {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setShowErrorAlert(false)}
-              className="text-red-400 hover:text-red-700 p-1 -mr-1 -mt-1 cursor-pointer"
+              className="text-red-400 hover:text-red-700 p-1 -mr-1 -mt-1 cursor-pointer transition-colors"
+              aria-label="Dismiss alert"
             >
               <X className="w-4 h-4" />
             </button>
@@ -245,141 +275,167 @@ function LoginContent() {
         )}
 
         {/* ======================================================== */}
-        {/* 8. Main 2-Column Grid (Desktop & Mobile) */}
+        {/* 6. Main 2-Column Responsive Layout */}
         {/* ======================================================== */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* ====================================================== */}
-          {/* Left Column: Login Card (lg:col-span-7) */}
+          {/* Left Column: Premium Login Form Card (lg:col-span-7) */}
           {/* ====================================================== */}
-          <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 shadow-xs space-y-5">
+          <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 shadow-xs space-y-6">
             {/* Desktop Card Header */}
             <div className="hidden sm:block space-y-1">
               <h2 className="text-2xl font-heading font-black text-slate-900 tracking-tight">
                 Welcome Back
               </h2>
               <p className="text-xs text-slate-500">
-                Log in to your LankaDirect account to view past orders and track doorstep deliveries across Sri Lanka.
+                Sign in to your LankaDirect account to access past orders, track live shipments, and manage deliveries.
               </p>
             </div>
 
-            {/* Login / Register Segmented Tabs */}
+            {/* Login / Register Segmented Tab Switcher */}
             <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-slate-100 text-xs font-bold">
               <button
                 type="button"
-                className="py-2 rounded-xl bg-white text-slate-900 shadow-2xs text-center"
+                className="py-2.5 rounded-xl bg-white text-slate-900 shadow-2xs text-center transition-all cursor-default"
               >
                 Log In
               </button>
               <Link
                 href="/register"
-                className="py-2 rounded-xl text-slate-500 hover:text-slate-900 text-center transition-colors"
+                className="py-2.5 rounded-xl text-slate-500 hover:text-slate-900 text-center transition-colors hover:bg-slate-200/50"
               >
                 Create Account
               </Link>
             </div>
 
-            {/* Quick Demo Access Bar */}
-            <div className="p-3 rounded-2xl bg-orange-50/60 border border-orange-200/80 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-brand-hover block">
-                  Quick Demo Access (1-Click Fill &amp; Login)
-                </span>
-                <span className="text-[10px] font-bold text-slate-400">Direct Route</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('dinuka.f@gmail.com');
-                    setPassword('password123');
-                    setIsLoading(true);
-                    setTimeout(() => router.push(redirectParam || '/account'), 500);
-                  }}
-                  className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-primary text-left transition-all hover:shadow-xs cursor-pointer group"
-                >
-                  <span className="font-heading font-black text-xs text-slate-900 group-hover:text-brand-primary block leading-tight">
-                    Customer Portal →
-                  </span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Dinuka Fernando</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('admin@lankadirect.lk');
-                    setPassword('Admin@Lanka2025!');
-                    setIsLoading(true);
-                    setTimeout(() => router.push('/admin'), 500);
-                  }}
-                  className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-primary text-left transition-all hover:shadow-xs cursor-pointer group"
-                >
-                  <span className="font-heading font-black text-xs text-slate-900 group-hover:text-brand-primary block leading-tight">
-                    Admin Portal →
-                  </span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Store Owner</span>
-                </button>
-              </div>
-            </div>
-
             {/* Login Form */}
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              {/* Email Address */}
+            <form onSubmit={handleLoginSubmit} noValidate className="space-y-4">
+              {/* Email Address Field */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <label className="font-bold text-slate-700">Email Address</label>
-                  <span className="text-[10px] text-slate-400">e.g. nimal@gmail.com</span>
+                  <label htmlFor="login-email" className="font-bold text-slate-700">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-medium">e.g. name@domain.com</span>
                 </div>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@domain.com"
-                    className="w-full h-11 pl-10 pr-9 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
+                  <Mail
+                    className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${
+                      emailError
+                        ? 'text-red-500'
+                        : isEmailValid
+                        ? 'text-emerald-600'
+                        : 'text-slate-400'
+                    }`}
                   />
-                  {email.includes('@') && email.length > 5 && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <input
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    disabled={isLoading}
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (showErrorAlert) setShowErrorAlert(false);
+                    }}
+                    onBlur={() => setEmailTouched(true)}
+                    placeholder="Enter your registered email"
+                    aria-invalid={Boolean(emailError)}
+                    className={`w-full h-11 pl-10 pr-10 rounded-xl border text-xs font-semibold text-slate-900 transition-all duration-200 outline-none ${
+                      emailError
+                        ? 'border-red-400 bg-red-50/20 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                        : isEmailValid
+                        ? 'border-emerald-300 bg-emerald-50/10 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+                        : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 focus:bg-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20'
+                    }`}
+                  />
+                  {/* Validation Icon Feedback */}
+                  {emailError ? (
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none">
+                      <AlertCircle className="w-4 h-4" />
                     </div>
-                  )}
+                  ) : isEmailValid ? (
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600 pointer-events-none animate-in fade-in">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
+                  ) : null}
                 </div>
+                {/* Inline Error Helper */}
+                {emailError && (
+                  <p className="text-[11px] font-medium text-red-600 flex items-center gap-1.5 mt-1 animate-in fade-in slide-in-from-top-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{emailError}</span>
+                  </p>
+                )}
               </div>
 
-              {/* Password */}
+              {/* Password Field */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <label className="font-bold text-slate-700">Password</label>
+                  <label htmlFor="login-password" className="font-bold text-slate-700">
+                    Password <span className="text-red-500">*</span>
+                  </label>
                   <button
                     type="button"
-                    onClick={() => setResetModalOpen(true)}
+                    onClick={() => {
+                      setResetModalOpen(true);
+                      setResetEmail(email.trim());
+                    }}
                     className="text-brand-primary font-bold hover:underline cursor-pointer text-xs"
                   >
                     Forgot password?
                   </button>
                 </div>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock
+                    className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${
+                      passwordError
+                        ? 'text-red-500'
+                        : isPasswordValid
+                        ? 'text-emerald-600'
+                        : 'text-slate-400'
+                    }`}
+                  />
                   <input
+                    id="login-password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
-                    required
+                    autoComplete="current-password"
+                    disabled={isLoading}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (showErrorAlert) setShowErrorAlert(false);
+                    }}
+                    onBlur={() => setPasswordTouched(true)}
                     placeholder="Enter your password"
-                    className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
+                    aria-invalid={Boolean(passwordError)}
+                    className={`w-full h-11 pl-10 pr-10 rounded-xl border text-xs font-semibold text-slate-900 transition-all duration-200 outline-none ${
+                      passwordError
+                        ? 'border-red-400 bg-red-50/20 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                        : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 focus:bg-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20'
+                    }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {/* Inline Error Helper */}
+                {passwordError && (
+                  <p className="text-[11px] font-medium text-red-600 flex items-center gap-1.5 mt-1 animate-in fade-in slide-in-from-top-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{passwordError}</span>
+                  </p>
+                )}
               </div>
 
-              {/* Remember Me Checkbox */}
+              {/* Remember Me Option */}
               <label className="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer select-none pt-0.5">
                 <input
                   type="checkbox"
@@ -395,21 +451,30 @@ function LoginContent() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-11 text-sm font-bold rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                className="w-full h-11 text-xs font-bold rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer"
               >
-                <span>{isLoading ? 'Signing In...' : 'Log In'}</span>
-                <ArrowRight className="w-4 h-4" />
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </Button>
 
-              {/* OR Divider */}
-              <div className="relative flex items-center justify-center py-2">
+              {/* Divider */}
+              <div className="relative flex items-center justify-center py-1">
                 <div className="border-t border-slate-200 w-full"></div>
                 <span className="bg-white px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest relative">
                   OR
                 </span>
               </div>
 
-              {/* Don't have an account */}
+              {/* Create Account Link */}
               <div className="text-center text-xs text-slate-600">
                 <span>Don&apos;t have an account? </span>
                 <Link
@@ -425,14 +490,14 @@ function LoginContent() {
                 <Button
                   type="button"
                   variant="secondary"
-                  className="w-full h-11 text-xs font-bold rounded-xl bg-indigo-50/70 hover:bg-indigo-100 text-indigo-900 border border-indigo-100 shadow-xs flex items-center justify-center gap-2 transition-colors"
+                  className="w-full h-11 text-xs font-bold rounded-xl bg-indigo-50/70 hover:bg-indigo-100 text-indigo-900 border border-indigo-100 shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4 text-indigo-600" />
                   <span>Continue Shopping as Guest</span>
                 </Button>
               </Link>
 
-              {/* Desktop Trust Strip */}
+              {/* Security & Encryption Trust Strip */}
               <div className="hidden sm:flex items-center justify-center gap-4 text-xs font-semibold text-slate-400 pt-3 border-t border-slate-100">
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -448,10 +513,10 @@ function LoginContent() {
           </div>
 
           {/* ====================================================== */}
-          {/* Right Column: Reset Password & Member Perks (lg:col-span-5) */}
+          {/* Right Column: Password Recovery & Member Perks (lg:col-span-5) */}
           {/* ====================================================== */}
           <div className="lg:col-span-5 space-y-5">
-            {/* Card 1: Reset Your Password (Self Service) */}
+            {/* Card 1: Self-Service Password Reset */}
             <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2.5">
@@ -468,36 +533,58 @@ function LoginContent() {
               </div>
 
               <p className="text-xs text-slate-500 leading-relaxed">
-                Enter your registered email address to receive a secure password reset link and instant recovery SMS code.
+                Enter your registered email address to receive a secure password reset link directly to your inbox.
               </p>
 
-              <form onSubmit={handleResetSubmit} className="space-y-3">
+              <form onSubmit={handleResetSubmit} noValidate className="space-y-3">
                 <div className="relative">
                   <span className="text-xs text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 font-mono">
                     @
                   </span>
                   <input
                     type="email"
-                    required
                     value={resetEmail}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                    placeholder="registered.email@lk.com"
-                    className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
+                    onChange={(e) => {
+                      setResetEmail(e.target.value);
+                      if (resetEmailError) setResetEmailError('');
+                    }}
+                    placeholder="Enter registered email"
+                    className={`w-full h-10 pl-9 pr-3 rounded-xl border text-xs font-semibold text-slate-900 outline-none transition-colors ${
+                      resetEmailError
+                        ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                        : 'border-slate-200 bg-slate-50/50 focus:bg-white focus:border-brand-primary'
+                    }`}
                   />
                 </div>
+                {resetEmailError && (
+                  <p className="text-[11px] font-medium text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{resetEmailError}</span>
+                  </p>
+                )}
 
                 <Button
                   type="submit"
                   size="sm"
+                  disabled={resetIsLoading}
                   className="w-full h-10 rounded-xl bg-[#1E293B] hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                 >
-                  <span>Send Reset Link</span>
-                  <Send className="w-3.5 h-3.5" />
+                  {resetIsLoading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Sending link...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send Reset Link</span>
+                      <Send className="w-3.5 h-3.5" />
+                    </>
+                  )}
                 </Button>
 
                 {resetSent && (
-                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold text-center">
-                    ✔ Reset link &amp; SMS code dispatched!
+                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold text-center animate-in fade-in">
+                    ✓ Reset link dispatched! Check your inbox.
                   </div>
                 )}
               </form>
@@ -569,7 +656,7 @@ function LoginContent() {
               </div>
             </div>
 
-            {/* Mobile: New to LankaDirect? Card (From Mobile Artboard) */}
+            {/* Mobile: New to LankaDirect? Card */}
             <div className="sm:hidden p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 space-y-3">
               <div className="flex items-center gap-2 font-heading font-bold text-xs text-indigo-950">
                 <Sparkles className="w-4 h-4 text-brand-primary" />
@@ -592,7 +679,7 @@ function LoginContent() {
         </div>
 
         {/* ======================================================== */}
-        {/* 9. Mobile Bottom Trust Strip (Stitch Artboard) */}
+        {/* 7. Mobile Bottom Trust Strip */}
         {/* ======================================================== */}
         <div className="sm:hidden flex items-center justify-center gap-3 text-[11px] font-semibold text-slate-400 pt-6 border-t border-slate-200 mt-6">
           <span className="flex items-center gap-1 text-slate-500">
@@ -612,7 +699,7 @@ function LoginContent() {
         </div>
 
         {/* ======================================================== */}
-        {/* 10. Desktop Footer Links */}
+        {/* 8. Desktop Footer Links */}
         {/* ======================================================== */}
         <div className="hidden sm:flex items-center justify-between text-xs text-slate-400 pt-10 border-t border-slate-200 mt-10">
           <p>© 2025 LankaDirect Retail (Pvt) Ltd. All rights reserved.</p>
@@ -634,11 +721,11 @@ function LoginContent() {
       </Container>
 
       {/* ======================================================== */}
-      {/* 11. Reset Password Modal / Sheet */}
+      {/* 9. Reset Password Modal / Dialog Sheet */}
       {/* ======================================================== */}
       {resetModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <RotateCcw className="w-5 h-5 text-brand-primary" />
@@ -647,37 +734,63 @@ function LoginContent() {
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setResetModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer transition-colors"
+                aria-label="Close recovery dialog"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              Enter your registered Sri Lankan email or mobile number. We will send a secure password reset link and verification code.
+              Enter your registered email address. We will send a secure password reset link directly to your inbox.
             </p>
 
-            <form onSubmit={handleResetSubmit} className="space-y-3">
+            <form onSubmit={handleResetSubmit} noValidate className="space-y-3">
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
-                  required
                   value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
+                  onChange={(e) => {
+                    setResetEmail(e.target.value);
+                    if (resetEmailError) setResetEmailError('');
+                  }}
                   placeholder="name@domain.com"
-                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none"
+                  className={`w-full h-11 pl-10 pr-3 rounded-xl border text-xs font-semibold text-slate-900 outline-none transition-colors ${
+                    resetEmailError
+                      ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                      : 'border-slate-200 bg-slate-50/50 focus:bg-white focus:border-brand-primary'
+                  }`}
                 />
               </div>
 
-              <Button type="submit" className="w-full h-11 text-xs font-bold rounded-xl shadow-md">
-                Send Recovery Link
+              {resetEmailError && (
+                <p className="text-[11px] font-medium text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{resetEmailError}</span>
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={resetIsLoading}
+                className="w-full h-11 text-xs font-bold rounded-xl shadow-md cursor-pointer"
+              >
+                {resetIsLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Sending link...</span>
+                  </>
+                ) : (
+                  <span>Send Recovery Link</span>
+                )}
               </Button>
 
               {resetSent && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold text-center">
-                  ✔ Recovery link sent successfully! Check your inbox.
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold text-center animate-in fade-in">
+                  ✓ Recovery link dispatched! Check your inbox.
                 </div>
               )}
             </form>
@@ -692,7 +805,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#FAFBFD] flex items-center justify-center text-slate-400 text-xs">
+        <div className="min-h-screen bg-[#FAFBFD] flex items-center justify-center text-slate-400 text-xs font-medium">
           Loading login portal...
         </div>
       }
@@ -701,4 +814,3 @@ export default function LoginPage() {
     </Suspense>
   );
 }
-
