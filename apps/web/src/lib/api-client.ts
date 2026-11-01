@@ -95,6 +95,15 @@ export async function authLogin(dto: LoginRequest): Promise<AuthResponse> {
   return result;
 }
 
+export async function authGoogleLogin(credential: string): Promise<AuthResponse> {
+  const result = await request<AuthResponse>('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ credential }),
+  });
+  saveAuthSession(result);
+  return result;
+}
+
 export async function authMe(tokenOverride?: string): Promise<UserContract> {
   const headers: Record<string, string> = {};
   if (tokenOverride) {

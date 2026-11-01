@@ -146,6 +146,7 @@ export interface UserContract {
   phoneNumber?: string | null;
   role: UserRole;
   isEmailVerified?: boolean;
+  avatarUrl?: string | null;
   createdAt: string;
 }
 
@@ -189,4 +190,8 @@ export interface ResetPasswordRequest {
   email: string;
   otp: string;
   newPassword: string;
+}
+
+export interface GoogleLoginRequest {
+  credential: string;
 }

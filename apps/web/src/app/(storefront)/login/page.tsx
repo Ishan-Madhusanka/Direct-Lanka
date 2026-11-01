@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
 import { authLogin, authForgotPassword, authResetPassword } from '@/lib/api-client';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -591,6 +592,9 @@ function LoginContent() {
                   OR
                 </span>
               </div>
+
+              {/* Google Sign-In Authentication */}
+              <GoogleSignInButton redirectUrl={redirectParam || '/account'} text="continue_with" />
 
               {/* Create Account Link */}
               <div className="text-center text-xs text-slate-600">

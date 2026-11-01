@@ -6,6 +6,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { OAuth2Client } from 'google-auth-library';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
 import { LoginDto } from './dto/login.dto';
@@ -14,6 +16,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { User, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
@@ -21,12 +24,17 @@ import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly googleClient: OAuth2Client;
 
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    const googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID') || process.env.GOOGLE_CLIENT_ID;
+    this.googleClient = new OAuth2Client(googleClientId);
+  }
 
   async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.usersService.findByEmail(dto.email);
@@ -258,6 +266,62 @@ export class AuthService {
     };
   }
 
+  async googleLogin(dto: GoogleLoginDto): Promise<AuthResponseDto> {
+    const googleClientId =
+      this.configService.get<string>('GOOGLE_CLIENT_ID') || process.env.GOOGLE_CLIENT_ID;
+
+    let payload: any;
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: dto.credential,
+        audience: googleClientId,
+      });
+      payload = ticket.getPayload();
+    } catch (err: any) {
+      this.logger.error(`Google token verification failed: ${err?.message}`);
+      throw new UnauthorizedException('Invalid or expired Google authentication token');
+    }
+
+    if (!payload || !payload.email) {
+      throw new UnauthorizedException('Google account does not contain a verified email address');
+    }
+
+    const email = payload.email.toLowerCase().trim();
+    const fullName = payload.name || payload.given_name || 'Google User';
+    const googleId = payload.sub;
+    const avatarUrl = payload.picture || null;
+
+    let user = await this.usersService.findByGoogleId(googleId);
+    if (!user) {
+      user = await this.usersService.findByEmail(email);
+    }
+
+    if (user) {
+      // User exists. Update googleId and avatar if not set, and mark email verified
+      if (!user.googleId || !user.avatarUrl || !user.isEmailVerified) {
+        user = await this.usersService.update(user.id, {
+          googleId: user.googleId || googleId,
+          avatarUrl: user.avatarUrl || avatarUrl,
+          isEmailVerified: true,
+        });
+      }
+      this.logger.log(`🎉 Google login success for existing user: ${user.email} (${user.role})`);
+    } else {
+      // New user registration via Google OAuth
+      user = await this.usersService.create({
+        fullName,
+        email,
+        googleId,
+        avatarUrl,
+        isEmailVerified: true,
+        role: UserRole.CUSTOMER,
+      });
+      this.logger.log(`✨ Created new customer account via Google OAuth: ${user.email}`);
+    }
+
+    return this.createAuthResponse(user);
+  }
+
   async validateToken(token: string): Promise<User> {
     try {
       const payload = this.jwtService.verify(token);
@@ -292,6 +356,8 @@ export class AuthService {
         fullName: user.fullName,
         phoneNumber: user.phoneNumber,
         role: user.role as any,
+        avatarUrl: user.avatarUrl,
+        isEmailVerified: user.isEmailVerified,
         createdAt: user.createdAt.toISOString(),
       },
     };

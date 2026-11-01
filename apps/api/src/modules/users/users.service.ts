@@ -52,13 +52,21 @@ export class UsersService implements OnModuleInit {
     });
   }
 
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { googleId },
+    });
+  }
+
   async create(data: {
     fullName: string;
     email: string;
     phoneNumber?: string;
-    passwordHash: string;
+    passwordHash?: string | null;
     role?: UserRole;
     isEmailVerified?: boolean;
+    googleId?: string | null;
+    avatarUrl?: string | null;
     emailOtp?: string | null;
     emailOtpExpiresAt?: Date | null;
     otpAttempts?: number;
@@ -68,9 +76,11 @@ export class UsersService implements OnModuleInit {
         fullName: data.fullName.trim(),
         email: data.email.toLowerCase().trim(),
         phoneNumber: data.phoneNumber ? data.phoneNumber.trim() : null,
-        passwordHash: data.passwordHash,
+        passwordHash: data.passwordHash || null,
         role: data.role || UserRole.CUSTOMER,
         isEmailVerified: data.isEmailVerified || false,
+        googleId: data.googleId || null,
+        avatarUrl: data.avatarUrl || null,
         emailOtp: data.emailOtp,
         emailOtpExpiresAt: data.emailOtpExpiresAt,
         otpAttempts: data.otpAttempts || 0,

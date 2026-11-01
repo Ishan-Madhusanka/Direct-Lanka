@@ -17,6 +17,12 @@ export class UserDto implements UserContract {
   @ApiProperty({ enum: ['CUSTOMER', 'ADMIN'], example: 'CUSTOMER' })
   role: UserRole;
 
+  @ApiProperty({ example: 'https://lh3.googleusercontent.com/...', nullable: true, required: false })
+  avatarUrl?: string | null;
+
+  @ApiProperty({ example: true, required: false })
+  isEmailVerified?: boolean;
+
   @ApiProperty({ example: '2026-10-28T00:00:00.000Z' })
   createdAt: string;
 }

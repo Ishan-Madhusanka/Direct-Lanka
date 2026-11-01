@@ -16,6 +16,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { AuthResponseDto, UserDto } from './dto/auth-response.dto';
 
 @ApiTags('Authentication')
@@ -30,6 +31,15 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid credentials or unverified email' })
   async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(dto);
+  }
+
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Authenticate using Google Identity Services ID token' })
+  @ApiResponse({ status: 200, type: AuthResponseDto, description: 'Google login successful' })
+  @ApiResponse({ status: 401, description: 'Invalid Google credential token' })
+  async googleLogin(@Body() dto: GoogleLoginDto): Promise<AuthResponseDto> {
+    return this.authService.googleLogin(dto);
   }
 
   @Post('register')

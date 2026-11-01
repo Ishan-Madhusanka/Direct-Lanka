@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
 import { authRegister, authVerifyOtp, authResendOtp } from '@/lib/api-client';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -616,6 +617,17 @@ export default function RegisterPage() {
                   </>
                 )}
               </Button>
+
+              {/* Divider */}
+              <div className="relative flex items-center justify-center py-1">
+                <div className="border-t border-slate-200 w-full"></div>
+                <span className="bg-white px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest relative">
+                  OR
+                </span>
+              </div>
+
+              {/* Google Sign-In Authentication */}
+              <GoogleSignInButton redirectUrl="/account" text="signup_with" />
 
               {/* Already have an account */}
               <div className="text-center text-xs text-slate-600 pt-1">

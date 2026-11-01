@@ -48,6 +48,8 @@ model User {
   phoneNumber       String?
   role              UserRole  @default(CUSTOMER)
   isEmailVerified   Boolean   @default(false)
+  googleId          String?   @unique
+  avatarUrl         String?
   emailOtp          String?
   emailOtpExpiresAt DateTime?
   otpAttempts       Int       @default(0)
