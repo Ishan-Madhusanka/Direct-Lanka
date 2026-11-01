@@ -12,6 +12,8 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { User, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
@@ -183,6 +185,76 @@ export class AuthService {
     return {
       success: true,
       message: `A fresh 6-digit verification code has been dispatched to ${user.email}.`,
+    };
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto): Promise<{ success: boolean; message: string }> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
+      // Don't disclose user non-existence for security
+      return {
+        success: true,
+        message: `If an account exists for ${dto.email}, a 6-digit password reset code has been sent.`,
+      };
+    }
+
+    const otp = this.generate6DigitOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await this.usersService.update(user.id, {
+      emailOtp: otp,
+      emailOtpExpiresAt: expiresAt,
+      otpAttempts: 0,
+    });
+
+    await this.mailService.sendPasswordResetOtp(user.email, user.fullName, otp);
+
+    this.logger.log(`📧 Password reset OTP sent to: ${user.email}`);
+    return {
+      success: true,
+      message: `A 6-digit password reset code has been dispatched to ${user.email}.`,
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<{ success: boolean; message: string }> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
+      throw new UnauthorizedException('No account found for this email address.');
+    }
+
+    if (user.otpAttempts >= 5) {
+      throw new BadRequestException('Too many invalid attempts. Please request a new reset code.');
+    }
+
+    if (!user.emailOtp || !user.emailOtpExpiresAt || new Date() > user.emailOtpExpiresAt) {
+      throw new BadRequestException('Password reset code has expired. Please request a new one.');
+    }
+
+    if (user.emailOtp !== dto.otp.trim()) {
+      await this.usersService.update(user.id, {
+        otpAttempts: user.otpAttempts + 1,
+      });
+      const remaining = 5 - (user.otpAttempts + 1);
+      throw new BadRequestException(
+        `Invalid reset code. (${remaining} attempt${remaining === 1 ? '' : 's'} remaining)`
+      );
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+
+    await this.usersService.update(user.id, {
+      passwordHash: hashedPassword,
+      emailOtp: null,
+      emailOtpExpiresAt: null,
+      otpAttempts: 0,
+      isEmailVerified: true,
+    });
+
+    this.logger.log(`🔐 Password successfully reset for: ${user.email}`);
+    return {
+      success: true,
+      message: 'Your password has been successfully reset! You can now log in with your new password.',
     };
   }
 

@@ -115,6 +115,17 @@ export async function authForgotPassword(
   });
 }
 
+export async function authResetPassword(
+  email: string,
+  otp: string,
+  newPassword: string
+): Promise<{ success: boolean; message: string }> {
+  return request<{ success: boolean; message: string }>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ email, otp, newPassword }),
+  });
+}
+
 export function saveAuthSession(session: AuthResponse): void {
   if (typeof window === 'undefined') return;
   try {

@@ -15,6 +15,7 @@ import { RegisterDto } from './dto/register.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthResponseDto, UserDto } from './dto/auth-response.dto';
 
 @ApiTags('Authentication')
@@ -80,12 +81,18 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Request password reset instructions' })
-  @ApiResponse({ status: 200, description: 'Reset instructions acknowledged' })
+  @ApiOperation({ summary: 'Request 6-digit password reset OTP' })
+  @ApiResponse({ status: 200, description: 'Reset code dispatched to email' })
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return {
-      success: true,
-      message: `If an account exists for ${dto.email}, password reset instructions have been dispatched.`,
-    };
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify 6-digit OTP and set new password' })
+  @ApiResponse({ status: 200, description: 'Password successfully reset' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 }

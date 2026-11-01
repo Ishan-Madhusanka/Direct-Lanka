@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -26,10 +26,11 @@ import {
   UserPlus,
   Headphones,
   Loader2,
+  KeyRound,
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import { authLogin, authForgotPassword } from '@/lib/api-client';
+import { authLogin, authForgotPassword, authResetPassword } from '@/lib/api-client';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -55,11 +56,29 @@ function LoginContent() {
 
   // Forgot Password Modal states
   const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [resetStep, setResetStep] = useState<1 | 2>(1);
   const [resetEmail, setResetEmail] = useState('');
   const [resetEmailTouched, setResetEmailTouched] = useState(false);
   const [resetEmailError, setResetEmailError] = useState('');
+  const [resetOtp, setResetOtp] = useState('');
+  const [resetOtpError, setResetOtpError] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showResetConfirmPassword, setShowResetConfirmPassword] = useState(false);
+  const [resetCooldown, setResetCooldown] = useState(0);
   const [resetIsLoading, setResetIsLoading] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [loginSuccessBanner, setLoginSuccessBanner] = useState<string | null>(null);
+
+  // Cooldown countdown timer for resend
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resetCooldown > 0) {
+      timer = setTimeout(() => setResetCooldown((prev) => prev - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resetCooldown]);
 
   // Client-side validation helpers
   const getEmailValidationError = (value: string): string => {
@@ -68,7 +87,7 @@ function LoginContent() {
       return 'Email address is required.';
     }
     if (!EMAIL_REGEX.test(trimmed)) {
-      return 'Please enter a valid email address (e.g. name@domain.com).';
+      return 'Please enter a valid email address.';
     }
     return '';
   };
@@ -134,8 +153,8 @@ function LoginContent() {
     }
   };
 
-  // Handle Password Reset Submission
-  const handleResetSubmit = async (e: React.FormEvent) => {
+  // Step 1: Request 6-digit Reset OTP
+  const handleRequestResetCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setResetEmailTouched(true);
 
@@ -154,17 +173,78 @@ function LoginContent() {
 
     try {
       await authForgotPassword(trimmed);
-    } catch {
-      // Intentionally absorb errors to preserve security & user privacy
+      setResetStep(2);
+      setResetCooldown(60);
+      setResetOtp('');
+      setResetNewPassword('');
+      setResetConfirmPassword('');
+      setResetOtpError('');
+    } catch (err: any) {
+      setResetEmailError(err?.message || 'Failed to send reset code. Please try again.');
     } finally {
       setResetIsLoading(false);
-      setResetSent(true);
+    }
+  };
+
+  // Step 2: Resend 6-digit Reset OTP
+  const handleResendResetCode = async () => {
+    if (resetCooldown > 0 || resetIsLoading) return;
+    setResetIsLoading(true);
+    setResetOtpError('');
+    try {
+      await authForgotPassword(resetEmail.trim());
+      setResetCooldown(60);
+    } catch (err: any) {
+      setResetOtpError(err?.message || 'Failed to resend code. Please try again.');
+    } finally {
+      setResetIsLoading(false);
+    }
+  };
+
+  // Step 2: Submit OTP and New Password
+  const handlePerformReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanOtp = resetOtp.trim();
+
+    if (cleanOtp.length !== 6) {
+      setResetOtpError('Please enter the full 6-digit verification code.');
+      return;
+    }
+    if (resetNewPassword.length < 6) {
+      setResetOtpError('New password must be at least 6 characters in length.');
+      return;
+    }
+    if (resetNewPassword !== resetConfirmPassword) {
+      setResetOtpError('Passwords do not match. Please verify your password entry.');
+      return;
+    }
+
+    setResetIsLoading(true);
+    setResetOtpError('');
+
+    try {
+      await authResetPassword(resetEmail.trim(), cleanOtp, resetNewPassword);
+      setResetSuccess(true);
+
+      // Pre-populate login form credentials for smooth sign-in
+      setEmail(resetEmail.trim());
+      setPassword(resetNewPassword);
+      setEmailTouched(true);
+      setPasswordTouched(true);
+      setLoginSuccessBanner('Password reset successfully! You can now sign in with your new password.');
+
       setTimeout(() => {
-        setResetSent(false);
         setResetModalOpen(false);
-        setResetEmail('');
-        setResetEmailTouched(false);
-      }, 3500);
+        setResetStep(1);
+        setResetSuccess(false);
+        setResetOtp('');
+        setResetNewPassword('');
+        setResetConfirmPassword('');
+      }, 1500);
+    } catch (err: any) {
+      setResetOtpError(err?.message || 'Invalid or expired reset code. Please try again.');
+    } finally {
+      setResetIsLoading(false);
     }
   };
 
@@ -250,6 +330,30 @@ function LoginContent() {
         {/* ======================================================== */}
         {/* 5. Server / API Error Alert Notification */}
         {/* ======================================================== */}
+        {loginSuccessBanner && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-heading font-bold text-xs text-emerald-950">
+                  Password Updated Successfully
+                </h4>
+                <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed font-medium">
+                  {loginSuccessBanner}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setLoginSuccessBanner(null)}
+              className="text-emerald-500 hover:text-emerald-800 p-1 -mr-1 -mt-1 cursor-pointer transition-colors"
+              aria-label="Dismiss alert"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {showErrorAlert && (
           <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex items-start gap-2.5">
@@ -382,7 +486,11 @@ function LoginContent() {
                     type="button"
                     onClick={() => {
                       setResetModalOpen(true);
+                      setResetStep(1);
                       setResetEmail(email.trim());
+                      setResetEmailError('');
+                      setResetOtpError('');
+                      setResetSuccess(false);
                     }}
                     className="text-brand-primary font-bold hover:underline cursor-pointer text-xs"
                   >
@@ -526,7 +634,7 @@ function LoginContent() {
                     <RotateCcw className="w-4 h-4" />
                   </div>
                   <h3 className="font-heading font-black text-sm sm:text-base text-slate-900">
-                    Reset Your Password
+                    Lost Your Password?
                   </h3>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px] uppercase tracking-wider">
@@ -535,61 +643,24 @@ function LoginContent() {
               </div>
 
               <p className="text-xs text-slate-500 leading-relaxed">
-                Enter your registered email address to receive a secure password reset link directly to your inbox.
+                Receive an instant 6-digit verification code to your registered email address and easily set a new password.
               </p>
 
-              <form onSubmit={handleResetSubmit} noValidate className="space-y-3">
-                <div className="relative">
-                  <span className="text-xs text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 font-mono">
-                    @
-                  </span>
-                  <input
-                    type="email"
-                    value={resetEmail}
-                    onChange={(e) => {
-                      setResetEmail(e.target.value);
-                      if (resetEmailError) setResetEmailError('');
-                    }}
-                    placeholder="Enter registered email"
-                    className={`w-full h-10 pl-9 pr-3 rounded-xl border text-xs font-semibold text-slate-900 outline-none transition-colors ${
-                      resetEmailError
-                        ? 'border-red-400 bg-red-50/20 focus:border-red-500'
-                        : 'border-slate-200 bg-slate-50/50 focus:bg-white focus:border-brand-primary'
-                    }`}
-                  />
-                </div>
-                {resetEmailError && (
-                  <p className="text-[11px] font-medium text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                    <span>{resetEmailError}</span>
-                  </p>
-                )}
-
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={resetIsLoading}
-                  className="w-full h-10 rounded-xl bg-[#1E293B] hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-                >
-                  {resetIsLoading ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Sending link...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Send Reset Link</span>
-                      <Send className="w-3.5 h-3.5" />
-                    </>
-                  )}
-                </Button>
-
-                {resetSent && (
-                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold text-center animate-in fade-in">
-                    ✓ Reset link dispatched! Check your inbox.
-                  </div>
-                )}
-              </form>
+              <Button
+                type="button"
+                onClick={() => {
+                  setResetModalOpen(true);
+                  setResetStep(1);
+                  setResetEmail(email.trim());
+                  setResetEmailError('');
+                  setResetOtpError('');
+                  setResetSuccess(false);
+                }}
+                className="w-full h-10 rounded-xl bg-[#1E293B] hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Recover Account Password</span>
+              </Button>
             </div>
 
             {/* Card 2: Member Perks at LankaDirect */}
@@ -726,76 +797,254 @@ function LoginContent() {
       {/* 9. Reset Password Modal / Dialog Sheet */}
       {/* ======================================================== */}
       {resetModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+            {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <RotateCcw className="w-5 h-5 text-brand-primary" />
-                <h3 className="font-heading font-black text-base text-slate-900">
-                  Password Recovery
-                </h3>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-orange-50 text-brand-primary flex items-center justify-center">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-black text-base text-slate-900">
+                    {resetStep === 1 ? 'Password Recovery' : 'Create New Password'}
+                  </h3>
+                  <span className="text-[11px] text-slate-400 font-medium">
+                    {resetStep === 1 ? 'Step 1 of 2: Verification Code' : 'Step 2 of 2: Set New Password'}
+                  </span>
+                </div>
               </div>
               <button
                 type="button"
-                onClick={() => setResetModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer transition-colors"
+                onClick={() => {
+                  setResetModalOpen(false);
+                  setResetStep(1);
+                }}
+                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
                 aria-label="Close recovery dialog"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Enter your registered email address. We will send a secure password reset link directly to your inbox.
-            </p>
-
-            <form onSubmit={handleResetSubmit} noValidate className="space-y-3">
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  value={resetEmail}
-                  onChange={(e) => {
-                    setResetEmail(e.target.value);
-                    if (resetEmailError) setResetEmailError('');
-                  }}
-                  placeholder="name@domain.com"
-                  className={`w-full h-11 pl-10 pr-3 rounded-xl border text-xs font-semibold text-slate-900 outline-none transition-colors ${
-                    resetEmailError
-                      ? 'border-red-400 bg-red-50/20 focus:border-red-500'
-                      : 'border-slate-200 bg-slate-50/50 focus:bg-white focus:border-brand-primary'
-                  }`}
-                />
-              </div>
-
-              {resetEmailError && (
-                <p className="text-[11px] font-medium text-red-600 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>{resetEmailError}</span>
+            {/* Step 1: Enter Email */}
+            {resetStep === 1 && (
+              <form onSubmit={handleRequestResetCode} noValidate className="space-y-4">
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Enter your registered email address. We will send a secure 6-digit password reset code directly to your inbox.
                 </p>
-              )}
 
-              <Button
-                type="submit"
-                disabled={resetIsLoading}
-                className="w-full h-11 text-xs font-bold rounded-xl shadow-md cursor-pointer"
-              >
-                {resetIsLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Sending link...</span>
-                  </>
-                ) : (
-                  <span>Send Recovery Link</span>
-                )}
-              </Button>
-
-              {resetSent && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold text-center animate-in fade-in">
-                  ✓ Recovery link dispatched! Check your inbox.
+                <div className="space-y-1.5">
+                  <label htmlFor="reset-email-input" className="text-xs font-bold text-slate-700 block">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      id="reset-email-input"
+                      type="email"
+                      required
+                      autoComplete="off"
+                      value={resetEmail}
+                      onChange={(e) => {
+                        setResetEmail(e.target.value);
+                        if (resetEmailError) setResetEmailError('');
+                      }}
+                      placeholder="Enter registered email"
+                      className={`w-full h-11 pl-10 pr-3 rounded-xl border text-xs font-semibold text-slate-900 outline-none transition-colors ${
+                        resetEmailError
+                          ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                          : 'border-slate-200 bg-slate-50/50 focus:bg-white focus:border-brand-primary'
+                      }`}
+                    />
+                  </div>
                 </div>
-              )}
-            </form>
+
+                {resetEmailError && (
+                  <p className="text-[11px] font-medium text-red-600 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{resetEmailError}</span>
+                  </p>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={resetIsLoading}
+                  className="w-full h-11 text-xs font-bold rounded-xl shadow-md cursor-pointer"
+                >
+                  {resetIsLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      <span>Sending reset code...</span>
+                    </>
+                  ) : (
+                    <span>Send Reset Code</span>
+                  )}
+                </Button>
+              </form>
+            )}
+
+            {/* Step 2: Enter OTP & New Password */}
+            {resetStep === 2 && (
+              <form onSubmit={handlePerformReset} noValidate className="space-y-4">
+                <div className="p-3 rounded-xl bg-orange-50/80 border border-orange-100 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 truncate pr-2">
+                    <Mail className="w-4 h-4 text-brand-primary shrink-0" />
+                    <span className="truncate text-slate-700">
+                      Code sent to <strong className="text-slate-900">{resetEmail}</strong>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setResetStep(1)}
+                    className="text-[11px] font-bold text-brand-primary hover:underline shrink-0 cursor-pointer"
+                  >
+                    Change
+                  </button>
+                </div>
+
+                {/* 6-Digit OTP */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <label htmlFor="reset-otp-input" className="font-bold text-slate-700">
+                      6-Digit Reset Code <span className="text-red-500">*</span>
+                    </label>
+                    {resetCooldown > 0 ? (
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        Resend in {resetCooldown}s
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleResendResetCode}
+                        disabled={resetIsLoading}
+                        className="text-[10px] font-bold text-brand-primary hover:underline cursor-pointer"
+                      >
+                        Resend code
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    id="reset-otp-input"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    autoComplete="one-time-code"
+                    required
+                    value={resetOtp}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      setResetOtp(digits);
+                      if (resetOtpError) setResetOtpError('');
+                    }}
+                    placeholder="123456"
+                    className="w-full h-12 text-center font-mono font-black text-xl tracking-[0.35em] rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
+                  />
+                </div>
+
+                {/* New Password */}
+                <div className="space-y-1.5">
+                  <label htmlFor="reset-new-password" className="text-xs font-bold text-slate-700 block">
+                    New Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      id="reset-new-password"
+                      name="reset_new_password"
+                      type={showResetPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      value={resetNewPassword}
+                      onChange={(e) => {
+                        setResetNewPassword(e.target.value);
+                        if (resetOtpError) setResetOtpError('');
+                      }}
+                      placeholder="Min. 6 characters"
+                      className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowResetPassword(!showResetPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
+                    >
+                      {showResetPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm New Password */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <label htmlFor="reset-confirm-password" className="font-bold text-slate-700">
+                      Confirm New Password <span className="text-red-500">*</span>
+                    </label>
+                    {resetConfirmPassword.length > 0 && (
+                      <span
+                        className={`text-[10px] font-bold ${
+                          resetNewPassword === resetConfirmPassword ? 'text-emerald-600' : 'text-red-500'
+                        }`}
+                      >
+                        {resetNewPassword === resetConfirmPassword ? '✓ Matches' : 'Mismatch'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      id="reset-confirm-password"
+                      name="reset_confirm_password"
+                      type={showResetConfirmPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      value={resetConfirmPassword}
+                      onChange={(e) => {
+                        setResetConfirmPassword(e.target.value);
+                        if (resetOtpError) setResetOtpError('');
+                      }}
+                      placeholder="Re-type new password"
+                      className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-primary focus:outline-none transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowResetConfirmPassword(!showResetConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
+                    >
+                      {showResetConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {resetOtpError && (
+                  <p className="text-[11px] font-medium text-red-600 flex items-center gap-1.5 animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{resetOtpError}</span>
+                  </p>
+                )}
+
+                {resetSuccess ? (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold text-center flex items-center justify-center gap-2 animate-in fade-in">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Password Reset Successfully! Updating...</span>
+                  </div>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={resetIsLoading}
+                    className="w-full h-11 text-xs font-bold rounded-xl shadow-md cursor-pointer"
+                  >
+                    {resetIsLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        <span>Updating password...</span>
+                      </>
+                    ) : (
+                      <span>Reset Password &amp; Sign In</span>
+                    )}
+                  </Button>
+                )}
+              </form>
+            )}
           </div>
         </div>
       )}
