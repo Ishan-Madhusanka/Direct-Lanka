@@ -11,3 +11,4 @@ export class GoogleLoginDto implements GoogleLoginRequest {
   @IsNotEmpty({ message: 'Google credential token is required' })
   credential: string;
 }
+
