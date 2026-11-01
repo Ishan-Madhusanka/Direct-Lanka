@@ -4,16 +4,15 @@
   "private": true,
   "description": "LankaDirect - Single-owner Sri Lankan e-commerce store monorepo",
   "scripts": {
-    "dev": "pnpm --filter @lankadirect/web dev",
-    "build": "pnpm --filter @lankadirect/web build",
+    "dev": "pnpm -r --parallel dev",
+    "dev:web": "pnpm --filter @lankadirect/web dev",
+    "dev:api": "pnpm --filter @lankadirect/api dev",
+    "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r --parallel exec rimraf node_modules .next dist",
-    "dev:api": "pnpm --filter @lankadirect/api start:dev",
-    "build:api": "pnpm --filter @lankadirect/api build",
     "prisma:push": "pnpm --filter @lankadirect/api prisma:push",
-    "prisma:generate": "pnpm --filter @lankadirect/api prisma:generate",
-    "dev:all": "pnpm -r --parallel dev"
+    "prisma:generate": "pnpm --filter @lankadirect/api prisma:generate"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

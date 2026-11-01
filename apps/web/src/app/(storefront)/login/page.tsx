@@ -180,7 +180,11 @@ function LoginContent() {
       setResetConfirmPassword('');
       setResetOtpError('');
     } catch (err: any) {
-      setResetEmailError(err?.message || 'Failed to send reset code. Please try again.');
+      if (err?.message?.includes('Failed to fetch') || err?.name === 'TypeError') {
+        setResetEmailError('Unable to reach the backend API on port 4000. Please start the backend server with: pnpm dev');
+      } else {
+        setResetEmailError(err?.message || 'Failed to send reset code. Please try again.');
+      }
     } finally {
       setResetIsLoading(false);
     }
@@ -242,7 +246,11 @@ function LoginContent() {
         setResetConfirmPassword('');
       }, 1500);
     } catch (err: any) {
-      setResetOtpError(err?.message || 'Invalid or expired reset code. Please try again.');
+      if (err?.message?.includes('Failed to fetch') || err?.name === 'TypeError') {
+        setResetOtpError('Unable to reach the backend API on port 4000. Please start the backend server with: pnpm dev');
+      } else {
+        setResetOtpError(err?.message || 'Invalid or expired reset code. Please try again.');
+      }
     } finally {
       setResetIsLoading(false);
     }
